@@ -64,10 +64,20 @@ public class XboxJoystick extends Joystick {
 
 	public Triggers triggers = new Triggers(this);
     
+    /**
+     * A util class to help with interacting with Xbox Controllers - the WPIlib version doesn't have button objects, and the joystick way is confusing (adapted from 319 Bob Control)
+     * @param port controller port
+     */
     public XboxJoystick(int port) {
 		super(port);
 	}
 
+    /**
+     * A util class to help with interacting with Xbox Controllers - the WPIlib version doesn't have button objects, and the joystick way is confusing (adapted from 319 Bob Control)
+     * @param port controller port
+     * @param xDeadband deadband for both stick's x values
+     * @param yDeadbandthe deadband for both stick's y values
+     */
 	public XboxJoystick(int port, double xDeadband, double yDeadband) {
 		this(port);
 		this.leftStick.setDeadband(xDeadband, yDeadband);
@@ -78,4 +88,16 @@ public class XboxJoystick extends Joystick {
 		setRumble(RumbleType.kLeftRumble, leftValue);
 		setRumble(RumbleType.kRightRumble, rightValue);
     }
+
+    public double getLeftTriggerValue() { return this.getRawAxis(XboxAxis.LEFT_TRIGGER.value); }
+
+    public double getRightTriggerValue() { return this.getRawAxis(XboxAxis.RIGHT_TRIGGER.value); }
+
+    public double getLeftStickXValue() { return this.getRawAxis(XboxAxis.LEFT_X.value); }
+
+    public double getLeftStickYValue() { return this.getRawAxis(XboxAxis.LEFT_Y.value); }
+
+    public double getRightStickXValue() { return this.getRawAxis(XboxAxis.RIGHT_X.value); }
+    
+    public double getRightStickYValue() { return this.getRawAxis(XboxAxis.RIGHT_Y.value); }
 }
