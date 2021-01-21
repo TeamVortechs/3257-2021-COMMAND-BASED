@@ -8,6 +8,7 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 
 public class Shooter extends PIDSubsystem {
@@ -22,6 +23,7 @@ public class Shooter extends PIDSubsystem {
     public Shooter() {
         // This is a PID subsystems, so we tell WPIlib some basic settings.
         super(new PIDController(ShooterConstants.flywheelP, ShooterConstants.flywheelI, ShooterConstants.flywheelD));
+        flywheelEncoder.setDistancePerPulse((double)1/(double)2048);
     }
     
     public BooleanSupplier atSetpoint() {

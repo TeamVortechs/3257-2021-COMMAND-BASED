@@ -6,10 +6,10 @@ import edu.wpi.first.wpilibj.util.Units;
 public final class Constants {
     public static class DriveConstants {
         /* Drive Ports */
-        public static int backLeftPort = 0;
-        public static int backRightPort = 0;
-        public static int frontLeftPort = 0;
-        public static int frontRightPort = 0;
+        public static int backLeftPort = 3;
+        public static int backRightPort = 1;
+        public static int frontLeftPort = 4;
+        public static int frontRightPort = 2;
 
         /* PID Controller Gains */
         public static double driveP = 0;
@@ -17,7 +17,7 @@ public final class Constants {
         public static double driveD = 0;
         public static double driveF = 0;
 
-        public static double turnP = 0;
+        public static double turnP = 6;
         public static double turnI = 0;
         public static double turnD = 0;
         public static double turnF = 0;
@@ -38,12 +38,12 @@ public final class Constants {
         /* Shooter Ports */
         public static int flywheelMotor1Port = 1;
         public static int flywheelMotor2Port = 3;
-        public static int[] flywheelEncoderPorts = new int[] {2, 3};
+        public static int[] flywheelEncoderPorts = new int[] {12, 11}; // b 3 y 2
 
         /* PID Controller Gains */
-        public static double flywheelP = 0;
+        public static double flywheelP = 1;
         public static double flywheelI = 0;
-        public static double flywheelD = 0;
+        public static double flywheelD = .2;
         public static double flywheelF = 0;
 
         /* More PID stuff */

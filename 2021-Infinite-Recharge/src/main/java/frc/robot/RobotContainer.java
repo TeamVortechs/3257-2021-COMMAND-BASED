@@ -59,8 +59,8 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             new RunCommand(() -> 
                 drivetrain.arcadeDrive(
-                    driverController.getRightTriggerValue() - driverController.getLeftTriggerValue(), /* Using triggers for throttle */
-                    driverController.getLeftStickXValue()), drivetrain) /* ...and the left stick for turning */
+                    -driverController.getRightTriggerValue() + driverController.getLeftTriggerValue(), /* Using triggers for throttle */
+                    -driverController.getLeftStickXValue()), drivetrain) /* ...and the left stick for turning */
                 ); 
 
         // Inline command for auto locking to balls using the drivetrain (should be in ballpath sub) limelight
@@ -85,15 +85,29 @@ public class RobotContainer {
 
         // Operator Controls
         // Set the shooter PID to turn on when we hit the right trigger, turn it off when its released
-        operatorController.rightTriggerButton
-            .whenActive(new ShootAutomatic(shooter, magazine, shooter.getCurrentTargetRPM(), ShooterConstants.intestineSpeed, ShooterConstants.pidTimeout))
+        driverController.aButton
+            //.whenActive(new ShootAutomatic(shooter, magazine, shooter.getCurrentTargetRPM(), ShooterConstants.intestineSpeed, ShooterConstants.pidTimeout))
+            .whenActive(new InstantCommand(() -> {
+                shooter.enable();
+                shooter.setSetpoint(ShooterConstants.defaultRPM);
+            }))
             .whenInactive(new InstantCommand(() -> shooter.disable()));
         
         // Change current rpm to high speed if holding the right bumper, and to default if not
         operatorController.rightBumper
             .whenActive(new InstantCommand(() -> shooter.setCurrentTargetRPM(ShooterConstants.longshotRPM)))
             .whenInactive(new InstantCommand(() -> shooter.setCurrentTargetRPM(ShooterConstants.defaultRPM)));
-    }
+        
+        driverController.leftBumper
+            .whenActive(new InstantCommand(() -> {
+                magazine.setMagazineSpeed(-.7);
+                magazine.setIntakeSpeed(.7);
+            }))
+            .whenInactive(new InstantCommand(() -> {
+                magazine.setMagazineSpeed(0);
+                magazine.setIntakeSpeed(0);
+            }));
+        }
 
     /**
      * A helper method to create a ramsete command from a built path

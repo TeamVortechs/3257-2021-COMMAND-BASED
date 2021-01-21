@@ -27,7 +27,7 @@ public class Drivetrain extends SubsystemBase {
 
     private DifferentialDrive differentialDrive = new DifferentialDrive(frontLeft, frontRight);
     private DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DriveConstants.trackwidth);
-    private DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(null, new Pose2d());
+    private DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(new Rotation2d(), new Pose2d());
     private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(DriveConstants.s, DriveConstants.v, DriveConstants.a);
 
     private AHRS gyro = new AHRS();
@@ -46,11 +46,13 @@ public class Drivetrain extends SubsystemBase {
         backRight.configFactoryDefault();
         frontRight.configFactoryDefault();
 
-        frontLeft.setInverted(InvertType.InvertMotorOutput);
+        frontLeft.setInverted(InvertType.None);
+        frontLeft.configOpenloopRamp(.5);
         backLeft.follow(frontLeft);
         backLeft.setInverted(InvertType.FollowMaster);
         
         frontRight.setInverted(InvertType.None);
+        frontRight.configOpenloopRamp(.5);
         backRight.follow(frontRight);
         backRight.setInverted(InvertType.FollowMaster);
     }

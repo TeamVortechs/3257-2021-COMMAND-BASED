@@ -12,7 +12,7 @@ public class Limelight {
      */
     public Limelight(String name) {
         tableInstance = NetworkTableInstance.getDefault().getTable(name);
-        setLightState(1);
+        setLightState(3);
     }
 
     /**
