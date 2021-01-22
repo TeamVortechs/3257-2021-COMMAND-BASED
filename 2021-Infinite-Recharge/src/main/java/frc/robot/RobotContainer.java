@@ -21,7 +21,6 @@ import frc.robot.utils.control.XboxJoystick;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.LimelightTrack;
-import frc.robot.commands.ShootAutomatic;
 
 public class RobotContainer {
     Shooter shooter = new Shooter();
