@@ -246,6 +246,7 @@ public class Robot extends TimedRobot {
 
     double battery = RobotController.getBatteryVoltage();
     double motorVolts = battery * Math.abs(priorAutospeed);
+    hi.pog();
 
     double leftMotorVolts = motorVolts;
     double rightMotorVolts = motorVolts;

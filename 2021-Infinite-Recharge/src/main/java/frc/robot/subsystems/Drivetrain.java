@@ -67,7 +67,11 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void tankDriveVolts(double left, double right) {
-        differentialDrive.tankDrive(left / 12, right / 12);
+        tankDrive(left / 12, right / 12);
+    }
+
+    public void tankDrive(double left, double right) {
+        differentialDrive.tankDrive(left, right);
     }
 
     public void arcadeDrive(double throttle, double turn) {
@@ -96,25 +100,26 @@ public class Drivetrain extends SubsystemBase {
         return (int)(motorRotations * DriveConstants.encoderCountsPerRotation);
     }
 
+    /* Odometry Helper Functions */
     public DifferentialDriveKinematics getKinematics() { return kinematics; }
-
     public DifferentialDriveWheelSpeeds getWheelSpeeds() { return new DifferentialDriveWheelSpeeds(metersPerSecondToNative(frontLeft.getSelectedSensorVelocity()), metersPerSecondToNative(frontRight.getSelectedSensorVelocity())); }
-
-    public PIDController getLeftController() { return leftController; }
-
-    public PIDController getRightController() { return rightController; }
-
-    public double getHeading() { return gyro.getAngle(); }
-
-    public SimpleMotorFeedforward getFeedForward() { return feedforward; }
-
     public Pose2d getPose() { return odometry.getPoseMeters(); }
-
     public void resetOdometry() { odometry.resetPosition(new Pose2d(), new Rotation2d()); }
-
     public void resetOdometry(Pose2d pose) { odometry.resetPosition(pose, pose.getRotation()); }
 
-    public void takeHeadingSnapshot() { headingSnapshot = getHeading(); }
+    /* PID Getters */
+    public PIDController getLeftController() { return leftController; }
+    public PIDController getRightController() { return rightController; }
+    public SimpleMotorFeedforward getFeedForward() { return feedforward; }
+
+    /* Sensor Getters */
+    public double getLeftEncoderPosition() { return nativeToMeters(frontLeft.getSelectedSensorPosition()); }
+    public double getLeftEncoderVelocity() { return nativeToMeters(frontLeft.getSelectedSensorVelocity() * 10); }
+
+    public double getRightEncoderPosition() { return nativeToMeters(frontRight.getSelectedSensorPosition()); }
+    public double getRightEncoderVelocity() { return nativeToMeters(frontRight.getSelectedSensorVelocity() * 10); }
     
+    public double getHeading() { return gyro.getAngle(); }
+    public void takeHeadingSnapshot() { headingSnapshot = getHeading(); }
     public double getHeadingSnapshot() { return headingSnapshot; }
 }

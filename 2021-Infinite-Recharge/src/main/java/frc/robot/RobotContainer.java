@@ -2,10 +2,16 @@ package frc.robot;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.RamseteController;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
@@ -144,5 +150,51 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
+    }
+
+    ArrayList<Double> entries = new ArrayList<Double>();
+    NetworkTableEntry autoSpeedEntry = NetworkTableInstance.getDefault().getEntry("/robot/autospeed");
+    NetworkTableEntry telemetryEntry = NetworkTableInstance.getDefault().getEntry("/robot/telemetry");
+    NetworkTableEntry rotateEntry = NetworkTableInstance.getDefault().getEntry("/robot/rotate");
+    double priorAutospeed = 0;
+    double[] data = new double[10];
+
+    /**
+     * Sends encoder values, volts, and more to calculate feedforward
+     */
+    public void characterizationPeriodic() {
+        double now = Timer.getFPGATimestamp();
+
+        double leftPosition = drivetrain.getLeftEncoderPosition();
+        double leftRate = drivetrain.getLeftEncoderVelocity();
+
+        double rightPosition = drivetrain.getRightEncoderPosition();
+        double rightRate = drivetrain.getRightEncoderVelocity();
+
+        double battery = RobotController.getBatteryVoltage();
+        double motorVolts = battery * Math.abs(priorAutospeed);
+
+        double leftMotorVolts = motorVolts;
+        double rightMotorVolts = motorVolts;
+
+        double autospeed = autoSpeedEntry.getDouble(0);
+        priorAutospeed = autospeed;
+
+        drivetrain.tankDrive((rotateEntry.getBoolean(false) ? -1 : 1) * autospeed, autospeed);
+
+        data[0] = now;
+        data[1] = battery;
+        data[2] = autospeed;
+        data[3] = leftMotorVolts;
+        data[4] = rightMotorVolts;
+        data[5] = leftPosition;
+        data[6] = rightPosition;
+        data[7] = leftRate;
+        data[8] = rightRate;
+        data[9] = Rotation2d.fromDegrees(drivetrain.getHeading()).getRadians();
+
+        for (double num : data) {
+            entries.add(num);
+        }
     }
 }
