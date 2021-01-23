@@ -60,7 +60,6 @@ public class RobotContainer {
         // Misc initialization
         SmartDashboard.putData(autoChooser);
         orchestra = new Orchestra(drivetrain.getTalonFXs(), "crabRave.chrp");
-        orchestra.play();
         
         // Set drive and magazine commands
         drivetrain.setDefaultCommand(
@@ -209,5 +208,9 @@ public class RobotContainer {
         for (double num : data) {
             entries.add(num);
         }
+    }
+
+    public void PlayMusic() {
+        orchestra.play();
     }
 }
