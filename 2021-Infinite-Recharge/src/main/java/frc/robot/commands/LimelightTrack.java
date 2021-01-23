@@ -16,7 +16,7 @@ public class LimelightTrack extends PIDCommand {
      * @param throttle input for moving for dodging or resisting defense (probably the same control that moves the robot forward)
      * @param headingSnapshot the heading that the robot was at when this was called so there is something to base error off of
      */
-    public LimelightTrack(Drivetrain drivetrain, DoubleSupplier errorSupplier, double throttle, double headingSnapshot) {
+    public LimelightTrack(Drivetrain drivetrain, DoubleSupplier errorSupplier, double throttle) {
         super(
             new PIDController(
                 DriveConstants.turnP, 
@@ -24,8 +24,10 @@ public class LimelightTrack extends PIDCommand {
                 DriveConstants.turnD,
                 DriveConstants.turnF
             ),
-            () -> drivetrain.getHeading(),
-            () -> errorSupplier.getAsDouble() + headingSnapshot,
-            output -> drivetrain.arcadeDrive(throttle, output));
+            drivetrain::getHeading,
+            () -> errorSupplier.getAsDouble() + drivetrain.getHeading(),
+            output -> drivetrain.arcadeDrive(throttle, output)
+        );
+        getController().enableContinuousInput(-180, 180);
     }
 }

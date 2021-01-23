@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
+import com.ctre.phoenix.music.Orchestra;
+
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Joystick.AxisType;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -24,8 +27,10 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Magazine;
 import frc.robot.subsystems.Shooter;
 import frc.robot.utils.control.XboxJoystick;
+import frc.robot.utils.control.XboxJoystick.XboxAxis;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.commands.AutoMagazine;
 import frc.robot.commands.LimelightTrack;
 
 public class RobotContainer {
@@ -35,6 +40,7 @@ public class RobotContainer {
     SendableChooser<Command> autoChooser = new SendableChooser<Command>();
     XboxJoystick driverController = new XboxJoystick(OIConstants.driverControllerPort);
     XboxJoystick operatorController = new XboxJoystick(OIConstants.operatorControllerPort);
+    Orchestra orchestra;
 
     /**
      * Controls (so far)
@@ -47,30 +53,31 @@ public class RobotContainer {
      * 
      * A - automatic shoot (stops after 5 balls or on release - going to do a rework including breakbeam sensors)
      * 
-     * DRIVER (Rocket League Controls - sort of):
-     * Right Trigger - forward
-     * Left Trigger - backward
-     * L Stick X - turn
-     * 
-     * Right Bumper - toggle ball locking
-     * Left Bumper - toggle shooter locking
+     * DRIVER (split arcade drive):
+     * FORWARD/BACKWARD - Left Stick Y
+     * TURN - Right Stick X
      * 
      */
     public RobotContainer() {
+        // Misc initialization
         SmartDashboard.putData(autoChooser);
-
-        // Driver Controls
-        // Inline command for driving the robot with rocket league style drive (this is what I like, use whatever you like)
+        orchestra = new Orchestra(drivetrain.getTalonFXs(), "crabRave.chrp");
+        orchestra.play();
+        
+        // Set drive and magazine commands
         drivetrain.setDefaultCommand(
             new RunCommand(() -> 
                 drivetrain.arcadeDrive(
-                    -driverController.getRightTriggerValue() + driverController.getLeftTriggerValue(), /* Using triggers for throttle */
-                    -driverController.getLeftStickXValue()), drivetrain) /* ...and the left stick for turning */
+                    driverController.getLeftStickYValue(), /* Using triggers for throttle */
+                    -driverController.getRightStickXValue()), drivetrain) /* ...and the left stick for turning */
                 ); 
+        
+        magazine.setDefaultCommand(new AutoMagazine(magazine));
 
         // Inline command for auto locking to balls using the drivetrain (should be in ballpath sub) limelight
+        
         driverController.rightBumper 
-            .whenHeld(new LimelightTrack(drivetrain, () -> magazine.getIntakeLimelight().getYawError(), driverController.getRightTriggerValue() - driverController.getLeftTriggerValue(), drivetrain.getHeadingSnapshot()))
+            .whenHeld(new LimelightTrack(drivetrain, () -> magazine.getIntakeLimelight().getYawError(), driverController.getLeftStickYValue(), drivetrain.getHeading()))
             .whenActive(new InstantCommand(
             () -> {
                 magazine.getIntakeLimelight().setLightState(3);
@@ -80,17 +87,18 @@ public class RobotContainer {
         
         // Inline command for auto locking to power port using the shooter limelight
         driverController.leftBumper
-            .whenHeld(new LimelightTrack(drivetrain, () -> shooter.getShooterLimelight().getYawError(), driverController.getRightTriggerValue() - driverController.getLeftTriggerValue(), drivetrain.getHeadingSnapshot()))
+            .whenHeld(new LimelightTrack(drivetrain, () -> shooter.getShooterLimelight().getYawError(), driverController.getLeftStickYValue(), drivetrain.getHeading()))
             .whenActive(new InstantCommand(
             () -> {
                 shooter.getShooterLimelight().setLightState(3);
                 drivetrain.takeHeadingSnapshot();
             }))
             .whenInactive(new InstantCommand(() -> shooter.getShooterLimelight().setLightState(1)));
+        
 
         // Operator Controls
         // Set the shooter PID to turn on when we hit the right trigger, turn it off when its released
-        driverController.aButton
+        operatorController.rightTriggerButton
             //.whenActive(new ShootAutomatic(shooter, magazine, shooter.getCurrentTargetRPM(), ShooterConstants.intestineSpeed, ShooterConstants.pidTimeout))
             .whenActive(new InstantCommand(() -> {
                 shooter.enable();
@@ -103,7 +111,7 @@ public class RobotContainer {
             .whenActive(new InstantCommand(() -> shooter.setCurrentTargetRPM(ShooterConstants.longshotRPM)))
             .whenInactive(new InstantCommand(() -> shooter.setCurrentTargetRPM(ShooterConstants.defaultRPM)));
         
-        driverController.leftBumper
+        operatorController.leftBumper
             .whenActive(new InstantCommand(() -> {
                 magazine.setMagazineSpeed(-.7);
                 magazine.setIntakeSpeed(.7);
@@ -112,7 +120,8 @@ public class RobotContainer {
                 magazine.setMagazineSpeed(0);
                 magazine.setIntakeSpeed(0);
             }));
-        }
+            
+    }
 
     /**
      * A helper method to create a ramsete command from a built path

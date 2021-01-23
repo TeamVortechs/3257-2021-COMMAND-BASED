@@ -1,6 +1,10 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.kauailabs.navx.frc.AHRS;
 
@@ -99,6 +103,9 @@ public class Drivetrain extends SubsystemBase {
         double motorRotations = wheelRotations * DriveConstants.gearboxRatio;
         return (int)(motorRotations * DriveConstants.encoderCountsPerRotation);
     }
+
+    // This is gross
+    public ArrayList<TalonFX> getTalonFXs() { return new ArrayList<> (Arrays.asList(new TalonFX[] { backLeft, backRight, frontLeft, frontRight })); }
 
     /* Odometry Helper Functions */
     public DifferentialDriveKinematics getKinematics() { return kinematics; }

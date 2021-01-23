@@ -5,7 +5,7 @@ import frc.robot.utils.control.AxisButton.ThresholdType;
 import edu.wpi.first.wpilibj.Joystick;
 
 public class XboxJoystick extends Joystick {
-	static enum XboxButton {
+	public static enum XboxButton {
 		A(1), B(2), X(3), Y(4), LEFT_BUMPER(5), RIGHT_BUMPER(6), SELECT(7), START(8), LEFT_STICK(9), RIGHT_STICK(10);
 		final int value;
 
@@ -18,7 +18,7 @@ public class XboxJoystick extends Joystick {
 		}
 	}
 
-	static enum XboxAxis {
+	public static enum XboxAxis {
 		LEFT_X(0), LEFT_Y(1), LEFT_TRIGGER(2), RIGHT_TRIGGER(3), RIGHT_X(4), RIGHT_Y(5), DPAD(6);
         final int value;
         
@@ -31,7 +31,7 @@ public class XboxJoystick extends Joystick {
 		}
 	}
 
-	static enum XboxDpad {
+	public static enum XboxDpad {
 		UNPRESSED(-1), UP(0), UP_RIGHT(45), RIGHT(90), DOWN_RIGHT(135), DOWN(180), DOWN_LEFT(225), LEFT(270), UP_LEFT(315);
         final int value;
         
