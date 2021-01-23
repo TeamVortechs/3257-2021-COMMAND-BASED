@@ -10,13 +10,13 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Magazine;
 
-public class AutoMagazine extends CommandBase {
+public class no extends CommandBase {
     private Magazine magazine;
     
     // These are for adding callbacks when the intake and shooter sensors change, theres probably some slick way of doing this
     private boolean prevIntakeSensorOn;
 
-    public AutoMagazine(Magazine magazine) {
+    public no(Magazine magazine) {
         this.magazine = magazine;
         addRequirements(magazine);
     }

@@ -28,7 +28,7 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.utils.control.XboxJoystick;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.commands.AutoMagazine;
+import frc.robot.commands.no;
 import frc.robot.commands.LimelightTrack;
 
 public class RobotContainer {
@@ -66,15 +66,15 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             new RunCommand(() -> 
                 drivetrain.arcadeDrive(
-                    driverController.getLeftStickYValue(), /* Using triggers for throttle */
-                    -driverController.getRightStickXValue()), drivetrain) /* ...and the left stick for turning */
+                    driverController.getLeftStickYValue(),
+                    -driverController.getRightStickXValue()), drivetrain)
                 ); 
         
-        magazine.setDefaultCommand(new AutoMagazine(magazine));
+        magazine.setDefaultCommand(new no(magazine));
 
-        // Inline command for auto locking to balls using the drivetrain (should be in ballpath sub) limelight
+        // Inline command for auto locking to balls using the drivetrain (should be in ballpath sub) limelight (TOO EXPERIMENTAL)
         
-        driverController.rightBumper 
+        /*driverController.rightBumper 
             .whenHeld(new LimelightTrack(drivetrain, () -> magazine.getIntakeLimelight().getYawError(), driverController.getLeftStickYValue()))
             .whenActive(new InstantCommand(
             () -> {
@@ -91,11 +91,18 @@ public class RobotContainer {
                 shooter.getShooterLimelight().setLightState(3);
                 drivetrain.takeHeadingSnapshot();
             }))
-            .whenInactive(new InstantCommand(() -> shooter.getShooterLimelight().setLightState(1)));
+            .whenInactive(new InstantCommand(() -> shooter.getShooterLimelight().setLightState(1)));*/
+
+        driverController.leftTriggerButton
+            .whenActive(new InstantCommand(() -> magazine.setIntakeSpeed(.7)))
+            .whenInactive(new InstantCommand(() -> magazine.setIntakeSpeed(0)));
         
+        driverController.leftBumper
+            .whenActive(new InstantCommand(() -> magazine.setIntakeSpeed(-.7)))
+            .whenInactive(new InstantCommand(() -> magazine.setIntakeSpeed(0)));
 
         // Operator Controls
-        // Set the shooter PID to turn on when we hit the right trigger, turn it off when its released
+        // SHOOT - Right Trigger
         operatorController.rightTriggerButton
             //.whenActive(new ShootAutomatic(shooter, magazine, shooter.getCurrentTargetRPM(), ShooterConstants.intestineSpeed, ShooterConstants.pidTimeout))
             .whenActive(new InstantCommand(() -> {
@@ -104,21 +111,20 @@ public class RobotContainer {
             }))
             .whenInactive(new InstantCommand(() -> shooter.disable()));
         
-        // Change current rpm to high speed if holding the right bumper, and to default if not
+        // SHOOT MODE (doesn't really do much because the shooters already at max anyways) - Right Bumper
         operatorController.rightBumper
             .whenActive(new InstantCommand(() -> shooter.setCurrentTargetRPM(ShooterConstants.longshotRPM)))
             .whenInactive(new InstantCommand(() -> shooter.setCurrentTargetRPM(ShooterConstants.defaultRPM)));
         
+        // MAGAZINE IN - Left Trigger
+        operatorController.leftTriggerButton
+            .whenActive(new InstantCommand(() -> magazine.setMagazineSpeed(-.7)))
+            .whenInactive(new InstantCommand(() -> magazine.setMagazineSpeed(0)));
+
+        // MAGAZINE OUT - Left Bumper
         operatorController.leftBumper
-            .whenActive(new InstantCommand(() -> {
-                /*magazine.setMagazineSpeed(-.7);*/
-                magazine.setIntakeSpeed(.7);
-            }))
-            .whenInactive(new InstantCommand(() -> {
-                magazine.setMagazineSpeed(0);
-                magazine.setIntakeSpeed(0);
-            }));
-            
+            .whenActive(new InstantCommand(() -> magazine.setMagazineSpeed(.7)))
+            .whenInactive(new InstantCommand(() -> magazine.setMagazineSpeed(0)));
     }
 
     /**
