@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.Joystick.AxisType;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -27,7 +26,6 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Magazine;
 import frc.robot.subsystems.Shooter;
 import frc.robot.utils.control.XboxJoystick;
-import frc.robot.utils.control.XboxJoystick.XboxAxis;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.AutoMagazine;
@@ -77,7 +75,7 @@ public class RobotContainer {
         // Inline command for auto locking to balls using the drivetrain (should be in ballpath sub) limelight
         
         driverController.rightBumper 
-            .whenHeld(new LimelightTrack(drivetrain, () -> magazine.getIntakeLimelight().getYawError(), driverController.getLeftStickYValue(), drivetrain.getHeading()))
+            .whenHeld(new LimelightTrack(drivetrain, () -> magazine.getIntakeLimelight().getYawError(), driverController.getLeftStickYValue()))
             .whenActive(new InstantCommand(
             () -> {
                 magazine.getIntakeLimelight().setLightState(3);
@@ -87,7 +85,7 @@ public class RobotContainer {
         
         // Inline command for auto locking to power port using the shooter limelight
         driverController.leftBumper
-            .whenHeld(new LimelightTrack(drivetrain, () -> shooter.getShooterLimelight().getYawError(), driverController.getLeftStickYValue(), drivetrain.getHeading()))
+            .whenHeld(new LimelightTrack(drivetrain, () -> shooter.getShooterLimelight().getYawError(), driverController.getLeftStickYValue()))
             .whenActive(new InstantCommand(
             () -> {
                 shooter.getShooterLimelight().setLightState(3);
@@ -113,7 +111,7 @@ public class RobotContainer {
         
         operatorController.leftBumper
             .whenActive(new InstantCommand(() -> {
-                magazine.setMagazineSpeed(-.7);
+                /*magazine.setMagazineSpeed(-.7);*/
                 magazine.setIntakeSpeed(.7);
             }))
             .whenInactive(new InstantCommand(() -> {
