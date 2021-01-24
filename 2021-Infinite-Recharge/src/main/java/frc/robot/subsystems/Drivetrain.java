@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 
@@ -51,12 +52,12 @@ public class Drivetrain extends SubsystemBase {
         frontRight.configFactoryDefault();
 
         frontLeft.setInverted(InvertType.None);
-        frontLeft.configOpenloopRamp(.5);
+        frontLeft.configOpenloopRamp(1/2); // 0.5
         backLeft.follow(frontLeft);
         backLeft.setInverted(InvertType.FollowMaster);
         
         frontRight.setInverted(InvertType.None);
-        frontRight.configOpenloopRamp(.5);
+        frontRight.configOpenloopRamp(1/2); //
         backRight.follow(frontRight);
         backRight.setInverted(InvertType.FollowMaster);
     }
@@ -68,6 +69,8 @@ public class Drivetrain extends SubsystemBase {
 
         // Display that position on a virtual field - this can be seen in the field2d widget in Shuffleboard or glass
         field.setRobotPose(odometry.getPoseMeters());
+        SmartDashboard.putNumber("lencoder", getLeftEncoderPosition());
+        SmartDashboard.putNumber("rencoder", getRightEncoderPosition());
     }
 
     public void tankDriveVolts(double left, double right) {
@@ -111,7 +114,11 @@ public class Drivetrain extends SubsystemBase {
     public DifferentialDriveKinematics getKinematics() { return kinematics; }
     public DifferentialDriveWheelSpeeds getWheelSpeeds() { return new DifferentialDriveWheelSpeeds(metersPerSecondToNative(frontLeft.getSelectedSensorVelocity()), metersPerSecondToNative(frontRight.getSelectedSensorVelocity())); }
     public Pose2d getPose() { return odometry.getPoseMeters(); }
-    public void resetOdometry() { odometry.resetPosition(new Pose2d(), new Rotation2d()); }
+    public void resetOdometry() { 
+        frontLeft.getSensorCollection().setIntegratedSensorPosition(0, 100);
+        frontRight.getSensorCollection().setIntegratedSensorPosition(0, 100);
+        odometry.resetPosition(new Pose2d(), new Rotation2d()); 
+    }
     public void resetOdometry(Pose2d pose) { odometry.resetPosition(pose, pose.getRotation()); }
 
     /* PID Getters */

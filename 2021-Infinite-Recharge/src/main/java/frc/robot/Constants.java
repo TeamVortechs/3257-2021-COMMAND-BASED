@@ -17,7 +17,7 @@ public final class Constants {
         public static double driveD = 0;
         public static double driveF = 0;
 
-        public static double turnP = 6;
+        public static double turnP = .05;
         public static double turnI = 0;
         public static double turnD = 0;
         public static double turnF = 0;
@@ -31,7 +31,7 @@ public final class Constants {
         /* Physical Constants */
         public static double wheelDiameter = Units.inchesToMeters(6);
         public static double encoderCountsPerRotation = 2048;
-        public static double gearboxRatio = 10;
+        public static double gearboxRatio = 0.1;
         public static double trackwidth = 0;
     }
     
@@ -42,10 +42,10 @@ public final class Constants {
         public static int[] flywheelEncoderPorts = new int[] {12, 11}; // b 3 y 2
 
         /* PID Controller Gains */
-        public static double flywheelP = 1;
+        public static double flywheelP = .6;
         public static double flywheelI = 0;
-        public static double flywheelD = .2;
-        public static double flywheelF = 0;
+        public static double flywheelD = 0;
+        public static double flywheelF = .3;
 
         /* More PID stuff */
         public static double rpmTolerance = 30;

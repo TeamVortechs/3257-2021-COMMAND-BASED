@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -20,12 +21,15 @@ import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Magazine;
 import frc.robot.subsystems.Shooter;
 import frc.robot.utils.control.XboxJoystick;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.no;
@@ -58,8 +62,11 @@ public class RobotContainer {
      */
     public RobotContainer() {
         // Misc initialization
+        orchestra = new Orchestra(drivetrain.getTalonFXs());
+        orchestra.loadMusic("kkRider.chrp");
+
         SmartDashboard.putData(autoChooser);
-        orchestra = new Orchestra(drivetrain.getTalonFXs(), "crabRave.chrp");
+        
         
         // Set drive and magazine commands
         drivetrain.setDefaultCommand(
@@ -68,29 +75,45 @@ public class RobotContainer {
                     driverController.getLeftStickYValue(),
                     -driverController.getRightStickXValue()), drivetrain)
                 ); 
-        
-        magazine.setDefaultCommand(new no(magazine));
+        //
+        //magazine.setDefaultCommand(new no(magazine));
 
         // Inline command for auto locking to balls using the drivetrain (should be in ballpath sub) limelight (TOO EXPERIMENTAL)
         
-        /*driverController.rightBumper 
-            .whenHeld(new LimelightTrack(drivetrain, () -> magazine.getIntakeLimelight().getYawError(), driverController.getLeftStickYValue()))
+        driverController.aButton
+            .whenHeld(new PIDCommand(
+                new PIDController(
+                    DriveConstants.turnP,
+                    DriveConstants.turnI,
+                    DriveConstants.turnD
+                ),
+                drivetrain::getHeading,
+                () -> magazine.getIntakeLimelight().getYawError() + drivetrain.getHeadingSnapshot(),
+                output -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -output)))
             .whenActive(new InstantCommand(
             () -> {
-                magazine.getIntakeLimelight().setLightState(3);
+                shooter.getShooterLimelight().setLightState(3);
                 drivetrain.takeHeadingSnapshot();
-            }))
-            .whenInactive(new InstantCommand(() -> magazine.getIntakeLimelight().setLightState(1)));
+            }).andThen(new PrintCommand("intakelime go go go")))
+            .whenInactive(new InstantCommand(() -> shooter.getShooterLimelight().setLightState(1)));
         
         // Inline command for auto locking to power port using the shooter limelight
-        driverController.leftBumper
-            .whenHeld(new LimelightTrack(drivetrain, () -> shooter.getShooterLimelight().getYawError(), driverController.getLeftStickYValue()))
+        driverController.xButton
+            .whenHeld(new PIDCommand(
+                new PIDController(
+                    DriveConstants.turnP,
+                    DriveConstants.turnI,
+                    DriveConstants.turnD
+                ),
+                drivetrain::getHeading,
+                () -> shooter.getShooterLimelight().getYawError() + drivetrain.getHeadingSnapshot(),
+                output -> drivetrain.arcadeDrive(0, output)))
             .whenActive(new InstantCommand(
             () -> {
                 shooter.getShooterLimelight().setLightState(3);
                 drivetrain.takeHeadingSnapshot();
             }))
-            .whenInactive(new InstantCommand(() -> shooter.getShooterLimelight().setLightState(1)));*/
+            .whenInactive(new InstantCommand(() -> shooter.getShooterLimelight().setLightState(1)));
 
         driverController.leftTriggerButton
             .whenActive(new InstantCommand(() -> magazine.setIntakeSpeed(.7)))
@@ -211,6 +234,12 @@ public class RobotContainer {
     }
 
     public void PlayMusic() {
+        // CTR: Music interrupted due to one of the instruments being commanded a different control mode. Press Play to resume music.
         orchestra.play();
+    }
+
+    
+    public void resetOdometry() {
+        drivetrain.resetOdometry();
     }
 }
