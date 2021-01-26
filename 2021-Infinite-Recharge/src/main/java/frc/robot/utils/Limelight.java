@@ -4,8 +4,11 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class Limelight {
-    public NetworkTable tableInstance;
+    private NetworkTable tableInstance;
 
+    // Used to provide an empirical start point from which the displacement is based on
+    private double lastHeading;
+    
     /**
      * A util class to help with interacting with limelights (the network table way is cool and all, but I like classes)
      * @param name the name of the limelight (to get the network table entry)
@@ -31,6 +34,10 @@ public class Limelight {
         return tableInstance.getEntry("tx").getDouble(0);
     }
 
+    public double getYawAngle() {
+        return tableInstance.getEntry("tx").getDouble(0) + lastHeading;
+    }
+
     public double getPitchError() {
         return tableInstance.getEntry("tx").getDouble(0);
     }
@@ -41,5 +48,9 @@ public class Limelight {
 
     public boolean hasTarget() {
         return tableInstance.getEntry("tv").getDouble(0) == 1;
+    }
+
+    public void setCurrentHeading(double heading) {
+        lastHeading = heading;
     }
 }

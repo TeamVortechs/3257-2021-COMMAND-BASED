@@ -13,16 +13,21 @@ public class Magazine extends SubsystemBase {
     private Spark intake = new Spark(BallPathConstants.intakePort);
     private WPI_TalonSRX magazine = new WPI_TalonSRX(BallPathConstants.magazinePort);
     private Limelight intakeLimelight = new Limelight("limelight-bottom");
-    private DigitalInput intakeSensor = new DigitalInput(7);
+    private DigitalInput intakeSensor = new DigitalInput(7); // this one is not it man
     private DigitalInput shooterSensor = new DigitalInput(4);
 
-    public boolean getIntakeSensor() { return intakeSensor.get(); }
-    
-    public boolean getShooterSensor() { return shooterSensor.get(); }
+    private boolean empty;
 
-    public void setMagazineSpeed(double speed) { magazine.set(ControlMode.PercentOutput, speed); }
-    
-    public void setIntakeSpeed(double speed) { intake.set(speed); }
+    /* State and Sensor Getters */
+    public boolean getEmpty() { return empty; }
+    public void setEmpty(boolean empty) { this.empty = empty; }
+
+    public boolean getIntakeSensor() { return !intakeSensor.get(); }
+    public boolean getShooterSensor() { return !shooterSensor.get(); }
 
     public Limelight getIntakeLimelight() { return intakeLimelight; }
+
+    /* Motor Setters */
+    public void setMagazineSpeed(double speed) { magazine.set(ControlMode.PercentOutput, speed); }
+    public void setIntakeSpeed(double speed) { intake.set(speed); }
 }

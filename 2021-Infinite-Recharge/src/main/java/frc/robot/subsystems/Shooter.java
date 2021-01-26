@@ -14,10 +14,11 @@ public class Shooter extends PIDSubsystem {
     private Spark flywheel1 = new Spark(ShooterConstants.flywheelMotor1Port);
     private Spark flywheel2 = new Spark(ShooterConstants.flywheelMotor2Port);
     private Encoder flywheelEncoder = new Encoder(ShooterConstants.flywheelEncoderPorts[0], ShooterConstants.flywheelEncoderPorts[1]);
-
     private double currentTargetRPM = ShooterConstants.defaultRPM;
 
     private Limelight shooterLimelight = new Limelight("limelight-top");
+
+    private boolean shooting;
 
     public Shooter() {
         // This is a PID subsystems, so we tell WPIlib some basic settings.
@@ -43,13 +44,16 @@ public class Shooter extends PIDSubsystem {
         flywheel2.set(output);
     }
 
-    public void setCurrentTargetRPM(double rpm) { currentTargetRPM = rpm; }
+    /* State and Sensor Getters */
+    public boolean getShooting() { return shooting; }
+    public void setShooting(boolean shooting) { this.shooting = shooting; }
+    
+    public Encoder getFlywheelEncoder() { return flywheelEncoder; }
+    public Limelight getShooterLimelight() { return shooterLimelight; }
 
+    /* PID Getters and Setters*/
+    public void setCurrentTargetRPM(double rpm) { currentTargetRPM = rpm; }
     public double getCurrentTargetRPM() { return currentTargetRPM; }
 
     public double getTargetError() { return shooterLimelight.getYawError(); }
-
-    public Encoder getFlywheelEncoder() { return flywheelEncoder; }
-
-    public Limelight getShooterLimelight() { return shooterLimelight; }
 }

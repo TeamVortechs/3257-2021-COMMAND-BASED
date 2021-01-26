@@ -23,7 +23,6 @@ public final class Constants {
         public static double turnF = 0;
 
         /* Feedforward Gains (Get these by using the WPIlib characterization tool) */
-        
         public static double s = 0; // Volts
         public static double v = 0; // Volts * Seconds / Meters
         public static double a = 0; // Volts * Seconds^2 / Meters
@@ -33,6 +32,7 @@ public final class Constants {
         public static double encoderCountsPerRotation = 2048;
         public static double gearboxRatio = 0.1;
         public static double trackwidth = 0;
+        public static boolean invertGyro = false; // Set to counterclockwise is positive
     }
     
     public static class ShooterConstants {

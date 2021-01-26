@@ -4,17 +4,18 @@ import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.subsystems.Magazine;
 import frc.robot.subsystems.Shooter;
 
-public class ShootAutomatic extends SequentialCommandGroup {
+public class DumbAutoShoot extends SequentialCommandGroup {
 
     /**
      * Big sequential command to dumbly (not many sensors) shoot all the balls
+     * there is literally no reason to use this lmao
      * @param shooter
      * @param magazine
      * @param flywheelRPM
      * @param intestineSpeed
      * @param pidTimeout
      */
-    public ShootAutomatic(Shooter shooter, Magazine magazine, double flywheelRPM, double intestineSpeed, double pidTimeout) {
+    public DumbAutoShoot(Shooter shooter, Magazine magazine, double flywheelRPM, double intestineSpeed, double pidTimeout) {
         /**
          * Heres what it does: 
          *      enable and spin up the flywheel

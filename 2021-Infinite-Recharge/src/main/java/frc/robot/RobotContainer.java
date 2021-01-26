@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.music.Orchestra;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -12,8 +14,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.RamseteController;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -29,11 +31,8 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Magazine;
 import frc.robot.subsystems.Shooter;
 import frc.robot.utils.control.XboxJoystick;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.commands.no;
-import frc.robot.commands.LimelightTrack;
 
 public class RobotContainer {
     Shooter shooter = new Shooter();
@@ -63,7 +62,7 @@ public class RobotContainer {
     public RobotContainer() {
         // Misc initialization
         orchestra = new Orchestra(drivetrain.getTalonFXs());
-        orchestra.loadMusic("kkRider.chrp");
+        orchestra.loadMusic("gourmet_race.chrp");
 
         SmartDashboard.putData(autoChooser);
         
@@ -82,11 +81,7 @@ public class RobotContainer {
         
         driverController.aButton
             .whenHeld(new PIDCommand(
-                new PIDController(
-                    DriveConstants.turnP,
-                    DriveConstants.turnI,
-                    DriveConstants.turnD
-                ),
+                drivetrain.getTurnController(),
                 drivetrain::getHeading,
                 () -> magazine.getIntakeLimelight().getYawError() + drivetrain.getHeadingSnapshot(),
                 output -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -output)))
@@ -100,11 +95,7 @@ public class RobotContainer {
         // Inline command for auto locking to power port using the shooter limelight
         driverController.xButton
             .whenHeld(new PIDCommand(
-                new PIDController(
-                    DriveConstants.turnP,
-                    DriveConstants.turnI,
-                    DriveConstants.turnD
-                ),
+                drivetrain.getTurnController(),
                 drivetrain::getHeading,
                 () -> shooter.getShooterLimelight().getYawError() + drivetrain.getHeadingSnapshot(),
                 output -> drivetrain.arcadeDrive(0, output)))
@@ -193,7 +184,18 @@ public class RobotContainer {
     NetworkTableEntry rotateEntry = NetworkTableInstance.getDefault().getEntry("/robot/rotate");
     double priorAutospeed = 0;
     double[] data = new double[10];
+    String entry = "";
 
+    public void characterizationDisabled() {
+        System.out.println("Robot disabled");
+        drivetrain.tankDrive(0, 0);
+
+        entry = entries.toString();
+        entry = entry.substring(1, entry.length() - 1) + ", ";
+        telemetryEntry.setString(entry);
+        entries.clear();
+        entry = "";
+    }
     /**
      * Sends encoder values, volts, and more to calculate feedforward
      */
@@ -233,13 +235,19 @@ public class RobotContainer {
         }
     }
 
-    public void PlayMusic() {
-        // CTR: Music interrupted due to one of the instruments being commanded a different control mode. Press Play to resume music.
+    public void playMusic() {
+        for (TalonFX talon:drivetrain.getTalonFXs()) {
+            talon.set(ControlMode.MusicTone, 0);
+        }
         orchestra.play();
     }
 
     
     public void resetOdometry() {
         drivetrain.resetOdometry();
+    }
+
+    public void resetOdometry(Pose2d pose2d) {
+        drivetrain.resetOdometry(pose2d);
     }
 }
