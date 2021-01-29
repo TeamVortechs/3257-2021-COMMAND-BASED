@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.music.Orchestra;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -23,8 +21,6 @@ import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.Drivetrain;
@@ -33,6 +29,7 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.utils.control.XboxJoystick;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.commands.AutoMagazine;
 
 public class RobotContainer {
     Shooter shooter = new Shooter();
@@ -74,35 +71,26 @@ public class RobotContainer {
                     driverController.getLeftStickYValue(),
                     -driverController.getRightStickXValue()), drivetrain)
                 ); 
-        //
-        //magazine.setDefaultCommand(new no(magazine));
+        // no
+        magazine.setDefaultCommand(new AutoMagazine(magazine, shooter));
 
         // Inline command for auto locking to balls using the drivetrain (should be in ballpath sub) limelight (TOO EXPERIMENTAL)
-        
         driverController.aButton
-            .whenHeld(new PIDCommand(
-                drivetrain.getTurnController(),
-                drivetrain::getHeading,
-                () -> magazine.getIntakeLimelight().getYawError() + drivetrain.getHeadingSnapshot(),
-                output -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -output)))
+            .whenHeld(new RunCommand(() -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -magazine.getIntakeLimelight().getYawError() * 0.05), drivetrain))
             .whenActive(new InstantCommand(
             () -> {
-                shooter.getShooterLimelight().setLightState(3);
-                drivetrain.takeHeadingSnapshot();
-            }).andThen(new PrintCommand("intakelime go go go")))
-            .whenInactive(new InstantCommand(() -> shooter.getShooterLimelight().setLightState(1)));
+                magazine.getIntakeLimelight().setLightState(3);
+                magazine.getIntakeLimelight().setCurrentHeading(drivetrain.getHeading());
+            }))
+            .whenInactive(new InstantCommand(() -> magazine.getIntakeLimelight().setLightState(1)));
         
         // Inline command for auto locking to power port using the shooter limelight
         driverController.xButton
-            .whenHeld(new PIDCommand(
-                drivetrain.getTurnController(),
-                drivetrain::getHeading,
-                () -> shooter.getShooterLimelight().getYawError() + drivetrain.getHeadingSnapshot(),
-                output -> drivetrain.arcadeDrive(0, output)))
+            .whenHeld(new RunCommand(() -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -shooter.getShooterLimelight().getYawError() * 0.05), drivetrain))
             .whenActive(new InstantCommand(
             () -> {
                 shooter.getShooterLimelight().setLightState(3);
-                drivetrain.takeHeadingSnapshot();
+                shooter.getShooterLimelight().setCurrentHeading(drivetrain.getHeading());
             }))
             .whenInactive(new InstantCommand(() -> shooter.getShooterLimelight().setLightState(1)));
 
@@ -117,7 +105,6 @@ public class RobotContainer {
         // Operator Controls
         // SHOOT - Right Trigger
         operatorController.rightTriggerButton
-            //.whenActive(new ShootAutomatic(shooter, magazine, shooter.getCurrentTargetRPM(), ShooterConstants.intestineSpeed, ShooterConstants.pidTimeout))
             .whenActive(new InstantCommand(() -> {
                 shooter.enable();
                 shooter.setSetpoint(ShooterConstants.defaultRPM);
@@ -236,10 +223,10 @@ public class RobotContainer {
     }
 
     public void playMusic() {
-        for (TalonFX talon:drivetrain.getTalonFXs()) {
+        /*for (TalonFX talon:drivetrain.getTalonFXs()) {
             talon.set(ControlMode.MusicTone, 0);
         }
-        orchestra.play();
+        orchestra.play();*/
     }
 
     

@@ -45,6 +45,7 @@ public class Drivetrain extends SubsystemBase {
         // Calibrate n reset the gyro
         gyro.calibrate();
         gyro.reset();
+        turnController.enableContinuousInput(-180, 180);
         
         // Reset all the drivetrain controllers
         backLeft.configFactoryDefault();

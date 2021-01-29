@@ -24,6 +24,7 @@ public class Shooter extends PIDSubsystem {
         // This is a PID subsystems, so we tell WPIlib some basic settings.
         super(new PIDController(ShooterConstants.flywheelP, ShooterConstants.flywheelI, ShooterConstants.flywheelD));
         flywheelEncoder.setDistancePerPulse((double)1/(double)2048);
+        flywheelEncoder.setReverseDirection(true);
     }
     
     public BooleanSupplier atSetpoint() {
@@ -34,7 +35,7 @@ public class Shooter extends PIDSubsystem {
     @Override
     public double getMeasurement() {
         // Supply the flywheel rpm as the primary PID measurement
-        return flywheelEncoder.getRate();
+        return flywheelEncoder.getRate() * 60;
     }
 
     @Override
@@ -42,6 +43,7 @@ public class Shooter extends PIDSubsystem {
         // Use up that calculated output by powering the flywheel
         flywheel1.set(output);
         flywheel2.set(output);
+        System.out.println(output);
     }
 
     /* State and Sensor Getters */

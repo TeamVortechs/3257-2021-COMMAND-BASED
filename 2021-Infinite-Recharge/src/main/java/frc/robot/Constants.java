@@ -17,7 +17,7 @@ public final class Constants {
         public static double driveD = 0;
         public static double driveF = 0;
 
-        public static double turnP = .05;
+        public static double turnP = 0.005;
         public static double turnI = 0;
         public static double turnD = 0;
         public static double turnF = 0;
@@ -42,10 +42,10 @@ public final class Constants {
         public static int[] flywheelEncoderPorts = new int[] {12, 11}; // b 3 y 2
 
         /* PID Controller Gains */
-        public static double flywheelP = .6;
+        public static double flywheelP = .1;
         public static double flywheelI = 0;
         public static double flywheelD = 0;
-        public static double flywheelF = .3;
+        public static double flywheelF = 0;
 
         /* More PID stuff */
         public static double rpmTolerance = 30;
