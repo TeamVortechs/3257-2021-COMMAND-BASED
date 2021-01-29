@@ -27,9 +27,8 @@ public class Drivetrain extends SubsystemBase {
     private WPI_TalonFX frontLeft = new WPI_TalonFX(DriveConstants.frontLeftPort);
     private WPI_TalonFX frontRight = new WPI_TalonFX(DriveConstants.frontRightPort);
 
-    private PIDController leftController = new PIDController(DriveConstants.driveP, DriveConstants.driveI, DriveConstants.driveD, DriveConstants.turnF);
-    private PIDController rightController = new PIDController(DriveConstants.driveP, DriveConstants.driveI, DriveConstants.driveD, DriveConstants.turnF);
-    private PIDController turnController = new PIDController(DriveConstants.turnP, DriveConstants.turnI, DriveConstants.turnD, DriveConstants.turnF);
+    private PIDController leftController = new PIDController(DriveConstants.driveP, DriveConstants.driveI, DriveConstants.driveD, DriveConstants.driveF);
+    private PIDController rightController = new PIDController(DriveConstants.driveP, DriveConstants.driveI, DriveConstants.driveD, DriveConstants.driveF);
 
     private DifferentialDrive differentialDrive = new DifferentialDrive(frontLeft, frontRight);
     private DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DriveConstants.trackwidth);
@@ -45,7 +44,6 @@ public class Drivetrain extends SubsystemBase {
         // Calibrate n reset the gyro
         gyro.calibrate();
         gyro.reset();
-        turnController.enableContinuousInput(-180, 180);
         
         // Reset all the drivetrain controllers
         backLeft.configFactoryDefault();
@@ -125,7 +123,6 @@ public class Drivetrain extends SubsystemBase {
     public void resetOdometry(Pose2d pose) { odometry.resetPosition(pose, pose.getRotation()); }
 
     /* PID Getters */
-    public PIDController getTurnController() { return turnController; }
     public PIDController getLeftController() { return leftController; }
     public PIDController getRightController() { return rightController; }
     public SimpleMotorFeedforward getFeedForward() { return feedforward; }

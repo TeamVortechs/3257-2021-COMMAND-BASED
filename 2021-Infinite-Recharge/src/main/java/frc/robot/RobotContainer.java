@@ -20,16 +20,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Magazine;
 import frc.robot.subsystems.Shooter;
 import frc.robot.utils.control.XboxJoystick;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.AutoMagazine;
+import frc.robot.commands.AutoShoot;
 
 public class RobotContainer {
     Shooter shooter = new Shooter();
@@ -40,91 +41,74 @@ public class RobotContainer {
     XboxJoystick operatorController = new XboxJoystick(OIConstants.operatorControllerPort);
     Orchestra orchestra;
 
-    /**
-     * Controls (so far)
-     * OPERATOR:
-     * Right Trigger - shooter fwd
-     * Right Bumper - set long distance mode
-     * 
-     * Left Trigger - belt fwd
-     * Left Bumper - belt backward
-     * 
-     * A - automatic shoot (stops after 5 balls or on release - going to do a rework including breakbeam sensors)
-     * 
-     * DRIVER (split arcade drive):
-     * FORWARD/BACKWARD - Left Stick Y
-     * TURN - Right Stick X
-     * 
-     */
     public RobotContainer() {
-        // Misc initialization
         orchestra = new Orchestra(drivetrain.getTalonFXs());
         orchestra.loadMusic("gourmet_race.chrp");
 
         SmartDashboard.putData(autoChooser);
-        
-        
+    
         // Set drive and magazine commands
-        drivetrain.setDefaultCommand(
-            new RunCommand(() -> 
-                drivetrain.arcadeDrive(
-                    driverController.getLeftStickYValue(),
-                    -driverController.getRightStickXValue()), drivetrain)
-                ); 
-        // no
+        drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -driverController.getRightStickXValue()), drivetrain)); 
         magazine.setDefaultCommand(new AutoMagazine(magazine, shooter));
+        configureButtonBindings();
+    }
 
-        // Inline command for auto locking to balls using the drivetrain (should be in ballpath sub) limelight (TOO EXPERIMENTAL)
+    // DRIVER
+    // BALL LOCK - Hold A
+    // TARGET LOCK - Hold X
+    // INTAKE IN - Left Trigger
+    // INTAKE OUT - Left Bumper
+
+    // OPERATOR
+    // SHOOT - Right Trigger
+    // SHOOT MODE - Right Bumper
+    // MAGAZINE IN - Left Trigger
+    // MAGAZINE OUT - Left Bumper
+    // AUTO SHOOT - Press A
+    public void configureButtonBindings() {
+        // DRIVER        
+        // BALL LOCK - Hold A
         driverController.aButton
-            .whenHeld(new RunCommand(() -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -magazine.getIntakeLimelight().getYawError() * 0.05), drivetrain))
-            .whenActive(new InstantCommand(
-            () -> {
-                magazine.getIntakeLimelight().setLightState(3);
-                magazine.getIntakeLimelight().setCurrentHeading(drivetrain.getHeading());
-            }))
-            .whenInactive(new InstantCommand(() -> magazine.getIntakeLimelight().setLightState(1)));
+            .whenHeld(new RunCommand(() -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -magazine.getIntakeLimelight().getYawError() * DriveConstants.trackingGain), drivetrain))
+            .whenActive(() -> magazine.getIntakeLimelight().setLightState(3))
+            .whenInactive(() -> magazine.getIntakeLimelight().setLightState(1));
         
-        // Inline command for auto locking to power port using the shooter limelight
+        // TARGET LOCK - Hold X
         driverController.xButton
-            .whenHeld(new RunCommand(() -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -shooter.getShooterLimelight().getYawError() * 0.05), drivetrain))
-            .whenActive(new InstantCommand(
-            () -> {
-                shooter.getShooterLimelight().setLightState(3);
-                shooter.getShooterLimelight().setCurrentHeading(drivetrain.getHeading());
-            }))
-            .whenInactive(new InstantCommand(() -> shooter.getShooterLimelight().setLightState(1)));
+            .whenHeld(new RunCommand(() -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -shooter.getShooterLimelight().getYawError() * DriveConstants.trackingGain), drivetrain))
+            .whenActive(() -> shooter.getShooterLimelight().setLightState(3))
+            .whenInactive(() -> shooter.getShooterLimelight().setLightState(1));
 
+        // INTAKE IN - Left Trigger
         driverController.leftTriggerButton
-            .whenActive(new InstantCommand(() -> magazine.setIntakeSpeed(.7)))
-            .whenInactive(new InstantCommand(() -> magazine.setIntakeSpeed(0)));
+            .whenActive(() -> magazine.setIntakeSpeed(.7))
+            .whenInactive(() -> magazine.setIntakeSpeed(0));
         
+        // INTAKE OUT - Left Bumper
         driverController.leftBumper
-            .whenActive(new InstantCommand(() -> magazine.setIntakeSpeed(-.7)))
-            .whenInactive(new InstantCommand(() -> magazine.setIntakeSpeed(0)));
+            .whenActive(() -> magazine.setIntakeSpeed(-.7))
+            .whenInactive(() -> magazine.setIntakeSpeed(0));
 
-        // Operator Controls
+        // OPERATOR
         // SHOOT - Right Trigger
         operatorController.rightTriggerButton
-            .whenActive(new InstantCommand(() -> {
+            .whenActive(() -> {
                 shooter.enable();
-                shooter.setSetpoint(ShooterConstants.defaultRPM);
-            }))
-            .whenInactive(new InstantCommand(() -> shooter.disable()));
+                shooter.setSetpoint(shooter.getCurrentTargetRPM());
+            })
+            .whenInactive(() -> shooter.disable());
         
-        // SHOOT MODE (doesn't really do much because the shooters already at max anyways) - Right Bumper
+        // SHOOT MODE - Right Bumper
         operatorController.rightBumper
-            .whenActive(new InstantCommand(() -> shooter.setCurrentTargetRPM(ShooterConstants.longshotRPM)))
-            .whenInactive(new InstantCommand(() -> shooter.setCurrentTargetRPM(ShooterConstants.defaultRPM)));
+            .whenActive(() -> shooter.setCurrentTargetRPM(ShooterConstants.longshotRPM))
+            .whenInactive(() -> shooter.setCurrentTargetRPM(ShooterConstants.defaultRPM));
         
-        // MAGAZINE IN - Left Trigger
-        operatorController.leftTriggerButton
-            .whenActive(new InstantCommand(() -> magazine.setMagazineSpeed(-.7)))
-            .whenInactive(new InstantCommand(() -> magazine.setMagazineSpeed(0)));
-
-        // MAGAZINE OUT - Left Bumper
+        // MANUAL MAGAZINE - Left Bumper
         operatorController.leftBumper
-            .whenActive(new InstantCommand(() -> magazine.setMagazineSpeed(.7)))
-            .whenInactive(new InstantCommand(() -> magazine.setMagazineSpeed(0)));
+            .whenActive(() -> magazine.setMagazineSpeed(.7))
+            .whenInactive(() -> magazine.setMagazineSpeed(0));
+        // AUTO SHOOT - Press A
+        operatorController.aButton.whenActive(new AutoShoot(shooter, magazine));
     }
 
     /**
@@ -154,7 +138,7 @@ public class RobotContainer {
             drivetrain.getRightController(),
             (leftVolts, rightVolts) -> drivetrain.tankDriveVolts(leftVolts, rightVolts),
             drivetrain
-        ).andThen(new InstantCommand(() -> drivetrain.tankDriveVolts(0, 0)));
+        ).andThen(() -> drivetrain.tankDriveVolts(0, 0));
     }
 
     /**
@@ -220,13 +204,6 @@ public class RobotContainer {
         for (double num : data) {
             entries.add(num);
         }
-    }
-
-    public void playMusic() {
-        /*for (TalonFX talon:drivetrain.getTalonFXs()) {
-            talon.set(ControlMode.MusicTone, 0);
-        }
-        orchestra.play();*/
     }
 
     

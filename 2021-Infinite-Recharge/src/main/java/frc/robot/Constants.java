@@ -17,10 +17,7 @@ public final class Constants {
         public static double driveD = 0;
         public static double driveF = 0;
 
-        public static double turnP = 0.005;
-        public static double turnI = 0;
-        public static double turnD = 0;
-        public static double turnF = 0;
+        public static double trackingGain = 0.05;
 
         /* Feedforward Gains (Get these by using the WPIlib characterization tool) */
         public static double s = 0; // Volts
@@ -56,6 +53,8 @@ public final class Constants {
 
         public static double intestineSpeed = -0.7;
         public static double pidTimeout = 1.4;
+
+        public static double encoderDPR = (double)1/(double)2048;
     }
 
     public static class BallPathConstants {

@@ -60,7 +60,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         robotContainer.resetOdometry();
-        robotContainer.playMusic();
+        //robotContainer.playMusic();
         // reset because we aren't in auto anymore silly goose
         if (autonomousCommand != null) {
             autonomousCommand.cancel();

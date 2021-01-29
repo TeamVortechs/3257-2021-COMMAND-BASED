@@ -23,7 +23,7 @@ public class Shooter extends PIDSubsystem {
     public Shooter() {
         // This is a PID subsystems, so we tell WPIlib some basic settings.
         super(new PIDController(ShooterConstants.flywheelP, ShooterConstants.flywheelI, ShooterConstants.flywheelD));
-        flywheelEncoder.setDistancePerPulse((double)1/(double)2048);
+        flywheelEncoder.setDistancePerPulse(ShooterConstants.encoderDPR);
         flywheelEncoder.setReverseDirection(true);
     }
     
