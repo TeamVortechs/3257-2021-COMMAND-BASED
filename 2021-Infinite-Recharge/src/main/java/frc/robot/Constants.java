@@ -43,7 +43,7 @@ public final class Constants {
         public static double flywheelI = 0;
         public static double flywheelD = 0;
         public static double flywheelF = 0;
-
+        public static String gaming = "yes"; 
         /* More PID stuff */
         public static double rpmTolerance = 30;
 
