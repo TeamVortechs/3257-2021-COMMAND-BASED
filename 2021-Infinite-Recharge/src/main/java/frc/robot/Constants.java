@@ -19,6 +19,10 @@ public final class Constants {
 
         public static double trackingGain = 0.05;
 
+        /* Other Settings */
+        public static boolean leftEncoderInverted = true;
+        public static boolean rightEncoderInverted = false;
+
         /* Feedforward Gains (Get these by using the WPIlib characterization tool) */
         public static double s = 0.99; // Volts
         public static double v = 7.31; // Volts * Seconds / Meters

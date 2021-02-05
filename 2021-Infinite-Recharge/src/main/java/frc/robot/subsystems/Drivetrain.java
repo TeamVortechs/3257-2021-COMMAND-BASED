@@ -52,12 +52,13 @@ public class Drivetrain extends SubsystemBase {
         frontRight.configFactoryDefault();
 
         frontLeft.setInverted(InvertType.None);
-        frontLeft.configOpenloopRamp(1/2); // 0.5
+        frontLeft.configOpenloopRamp(1/2);
         backLeft.follow(frontLeft);
         backLeft.setInverted(InvertType.FollowMaster);
         
         frontRight.setInverted(InvertType.None);
-        frontRight.configOpenloopRamp(1/2); //
+        frontLeft.setSensorPhase(true);
+        frontRight.configOpenloopRamp(1/2);
         backRight.follow(frontRight);
         backRight.setInverted(InvertType.FollowMaster);
     }
@@ -108,6 +109,10 @@ public class Drivetrain extends SubsystemBase {
         return (int)(motorRotations * DriveConstants.encoderCountsPerRotation);
     }
 
+    public static double nativeToMeters(double meters, boolean inverted) { 
+        return inverted ? nativeToMeters(meters) * -1 : nativeToMeters(meters);
+    }
+
     // This is gross
     public ArrayList<TalonFX> getTalonFXs() { return new ArrayList<> (Arrays.asList(new TalonFX[] { backLeft, backRight, frontLeft, frontRight })); }
 
@@ -128,10 +133,10 @@ public class Drivetrain extends SubsystemBase {
     public SimpleMotorFeedforward getFeedForward() { return feedforward; }
 
     /* Sensor Getters */
-    public double getLeftEncoderPosition() { return nativeToMeters(frontLeft.getSelectedSensorPosition()); }
+    public double getLeftEncoderPosition() { return nativeToMeters(frontLeft.getSelectedSensorPosition(), DriveConstants.leftEncoderInverted); }
     public double getLeftEncoderVelocity() { return nativeToMeters(frontLeft.getSelectedSensorVelocity() * 10); }
 
-    public double getRightEncoderPosition() { return nativeToMeters(frontRight.getSelectedSensorPosition()); }
+    public double getRightEncoderPosition() { return nativeToMeters(frontRight.getSelectedSensorPosition(), DriveConstants.rightEncoderInverted); }
     public double getRightEncoderVelocity() { return nativeToMeters(frontRight.getSelectedSensorVelocity() * 10); }
     
     public double getHeading() { return DriveConstants.invertGyro ? -gyro.getAngle() : gyro.getAngle(); }

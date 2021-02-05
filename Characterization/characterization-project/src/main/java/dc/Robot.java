@@ -43,7 +43,10 @@ import edu.wpi.first.wpilibj.VictorSP;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.ArrayList; 
+import edu.wpi.first.wpilibj.util.Units;
+
 
 public class Robot extends TimedRobot {
 
@@ -52,8 +55,11 @@ public class Robot extends TimedRobot {
   static private int ENCODER_EPR = 8192;
   static private double GEARING = 10;
   
-  private double encoderConstant = (1 / GEARING) * (1 / ENCODER_EDGES_PER_REV);
-
+  public static double nativeToMeters(double counts) { 
+    // Helper function to convert native units (encoder counts) to meters for odometry
+    double wheelRotations = ((double)counts / 2048) * .1;
+    return wheelRotations * (Math.PI * Units.inchesToMeters(6));
+  }
   Joystick stick;
   DifferentialDrive drive;
 
@@ -116,20 +122,20 @@ public class Robot extends TimedRobot {
           
         motor.setSensorPhase(false);
         rightEncoderPosition = ()
-          -> motor.getSelectedSensorPosition(PIDIDX) * encoderConstant;
+          -> nativeToMeters(motor.getSelectedSensorPosition(PIDIDX));
         rightEncoderRate = ()
-          -> motor.getSelectedSensorVelocity(PIDIDX) * encoderConstant *
+          -> nativeToMeters(motor.getSelectedSensorVelocity(PIDIDX)) *
                10;
 
 
         break;
       case LEFT:
-        motor.setSensorPhase(false);
+        motor.setSensorPhase(true);
         
         leftEncoderPosition = ()
-          -> motor.getSelectedSensorPosition(PIDIDX) * encoderConstant;
+          -> nativeToMeters(motor.getSelectedSensorPosition(PIDIDX));
         leftEncoderRate = ()
-          -> motor.getSelectedSensorVelocity(PIDIDX) * encoderConstant *
+          -> nativeToMeters(motor.getSelectedSensorVelocity(PIDIDX)) *
                10;
         
 
@@ -154,14 +160,14 @@ public class Robot extends TimedRobot {
     stick = new Joystick(0);
     
     // create left motor
-    WPI_TalonFX leftMotor = setupWPI_TalonFX(3, Sides.LEFT, true);
+    WPI_TalonFX leftMotor = setupWPI_TalonFX(4, Sides.LEFT, true);
 
-    //WPI_TalonFX leftFollowerID1 = setupWPI_TalonFX(3, Sides.FOLLOWER, true);
-    //leftFollowerID1.follow(leftMotor);
+    WPI_TalonFX leftFollowerID3 = setupWPI_TalonFX(3, Sides.FOLLOWER, true);
+    leftFollowerID3.follow(leftMotor);
 
-    WPI_TalonFX rightMotor = setupWPI_TalonFX(1, Sides.RIGHT, true);
-    //WPI_TalonFX rightFollowerID2 = setupWPI_TalonFX(1, Sides.FOLLOWER, true);    
-    //rightFollowerID2.follow(rightMotor);
+    WPI_TalonFX rightMotor = setupWPI_TalonFX(2, Sides.RIGHT, true);
+    WPI_TalonFX rightFollowerID1 = setupWPI_TalonFX(1, Sides.FOLLOWER, true);    
+    rightFollowerID1.follow(rightMotor);
     drive = new DifferentialDrive(leftMotor, rightMotor);
     drive.setDeadband(0);
 
@@ -171,7 +177,7 @@ public class Robot extends TimedRobot {
 
     // Note that the angle from the NavX and all implementors of WPILib Gyro
     // must be negated because getAngle returns a clockwise positive angle
-    AHRS navx = new AHRS(SPI.Port.kMXP);
+    AHRS navx = new AHRS(SerialPort.Port.kMXP);
     gyroAngleRadians = () -> -1 * Math.toRadians(navx.getAngle());
 
     // Set the update rate instead of using flush because of a ntcore bug
@@ -234,15 +240,14 @@ public class Robot extends TimedRobot {
   */
   @Override
   public void autonomousPeriodic() {
-
     // Retrieve values to send back before telling the motors to do something
     double now = Timer.getFPGATimestamp();
 
     double leftPosition = leftEncoderPosition.get();
     double leftRate = leftEncoderRate.get();
 
-    double rightPosition = rightEncoderPosition.get();
-    double rightRate = rightEncoderRate.get();
+    double rightPosition = -rightEncoderPosition.get();
+    double rightRate = -rightEncoderRate.get();
 
     double battery = RobotController.getBatteryVoltage();
     double motorVolts = battery * Math.abs(priorAutospeed);
@@ -253,6 +258,7 @@ public class Robot extends TimedRobot {
     // Retrieve the commanded speed from NetworkTables
     double autospeed = autoSpeedEntry.getDouble(0);
     priorAutospeed = autospeed;
+    System.out.println(autospeed);
 
     // command motors to do things
     drive.tankDrive(

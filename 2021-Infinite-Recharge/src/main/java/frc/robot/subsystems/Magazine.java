@@ -13,8 +13,15 @@ public class Magazine extends SubsystemBase {
     private Spark intake = new Spark(BallPathConstants.intakePort);
     private WPI_TalonSRX magazine = new WPI_TalonSRX(BallPathConstants.magazinePort);
     private Limelight intakeLimelight = new Limelight("limelight-bottom");
-    private DigitalInput intakeSensor = new DigitalInput(7); // this one is not it man
-    private DigitalInput shooterSensor = new DigitalInput(4);
+    private DigitalInput intakeSensor = new DigitalInput(6); // this one is not it man
+    private DigitalInput shooterSensor = new DigitalInput(2);
+    private DigitalInput Sensor1 = new DigitalInput(1);
+    private DigitalInput Sensor3 = new DigitalInput(3);
+    private DigitalInput Sensor4 = new DigitalInput(4);
+    private DigitalInput Sensor5 = new DigitalInput(5);
+    private DigitalInput Sensor7 = new DigitalInput(7);
+    private DigitalInput Sensor8 = new DigitalInput(8);
+    private DigitalInput Sensor9 = new DigitalInput(9);
 
     private boolean empty;
 

@@ -41,7 +41,7 @@ public class RobotContainer {
 
         // Set drive and magazine commands
         drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -driverController.getRightStickXValue()), drivetrain)); 
-        magazine.setDefaultCommand(new AutoMagazine(magazine, shooter));
+        //magazine.setDefaultCommand(new AutoMagazine(magazine, shooter));
         configureButtonBindings();
     }
 
@@ -154,6 +154,8 @@ public class RobotContainer {
 
         double autospeed = autoSpeedEntry.getDouble(0);
         priorAutospeed = autospeed;
+
+        System.out.println(autospeed);
 
         drivetrain.tankDrive((rotateEntry.getBoolean(false) ? -1 : 1) * autospeed, autospeed);
 
