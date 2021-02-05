@@ -20,9 +20,9 @@ public final class Constants {
         public static double trackingGain = 0.05;
 
         /* Feedforward Gains (Get these by using the WPIlib characterization tool) */
-        public static double s = 0; // Volts
-        public static double v = 0; // Volts * Seconds / Meters
-        public static double a = 0; // Volts * Seconds^2 / Meters
+        public static double s = 0.99; // Volts
+        public static double v = 7.31; // Volts * Seconds / Meters
+        public static double a = 0.443; // Volts * Seconds^2 / Meters
         
         /* Physical Constants */
         public static double wheelDiameter = Units.inchesToMeters(6);
@@ -34,8 +34,8 @@ public final class Constants {
     
     public static class ShooterConstants {
         /* Shooter Ports */
-        public static int flywheelMotor1Port = 1;
-        public static int flywheelMotor2Port = 3;
+        public static int flywheelMotor1Port = 7;
+        public static int flywheelMotor2Port = 8;
         public static int[] flywheelEncoderPorts = new int[] {12, 11}; // b 3 y 2
 
         /* PID Controller Gains */
@@ -43,7 +43,7 @@ public final class Constants {
         public static double flywheelI = 0;
         public static double flywheelD = 0;
         public static double flywheelF = 0;
-        public static String gaming = "yes"; 
+
         /* More PID stuff */
         public static double rpmTolerance = 30;
 

@@ -2,17 +2,18 @@ package frc.robot.subsystems;
 
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.utils.Limelight;
-import edu.wpi.first.wpilibj.Spark;
 
 import java.util.function.BooleanSupplier;
+
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 
 public class Shooter extends PIDSubsystem {
-    private Spark flywheel1 = new Spark(ShooterConstants.flywheelMotor1Port);
-    private Spark flywheel2 = new Spark(ShooterConstants.flywheelMotor2Port);
+    private WPI_TalonSRX flywheel1 = new WPI_TalonSRX(ShooterConstants.flywheelMotor1Port);
+    private WPI_TalonSRX flywheel2 = new WPI_TalonSRX(ShooterConstants.flywheelMotor2Port);
     private Encoder flywheelEncoder = new Encoder(ShooterConstants.flywheelEncoderPorts[0], ShooterConstants.flywheelEncoderPorts[1]);
     private double currentTargetRPM = ShooterConstants.defaultRPM;
 

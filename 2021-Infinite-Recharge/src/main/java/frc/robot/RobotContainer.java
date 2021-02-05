@@ -1,26 +1,18 @@
 package frc.robot;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
 import com.ctre.phoenix.music.Orchestra;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Magazine;
@@ -46,7 +38,7 @@ public class RobotContainer {
         orchestra.loadMusic("gourmet_race.chrp");
 
         SmartDashboard.putData(autoChooser);
-    
+
         // Set drive and magazine commands
         drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -driverController.getRightStickXValue()), drivetrain)); 
         magazine.setDefaultCommand(new AutoMagazine(magazine, shooter));
@@ -103,42 +95,17 @@ public class RobotContainer {
             .whenActive(() -> shooter.setCurrentTargetRPM(ShooterConstants.longshotRPM))
             .whenInactive(() -> shooter.setCurrentTargetRPM(ShooterConstants.defaultRPM));
         
-        // MANUAL MAGAZINE - Left Bumper
+        // MANUAL MAGAZINE - Left Trigger
+        operatorController.leftTriggerButton
+            .whenActive(() -> magazine.setMagazineSpeed(-.7))
+            .whenInactive(() -> magazine.setMagazineSpeed(0));
+
+        // MANUAL MAGAZINE OUT - Left Bumper
         operatorController.leftBumper
             .whenActive(() -> magazine.setMagazineSpeed(.7))
             .whenInactive(() -> magazine.setMagazineSpeed(0));
         // AUTO SHOOT - Press A
         operatorController.aButton.whenActive(new AutoShoot(shooter, magazine));
-    }
-
-    /**
-     * A helper method to create a ramsete command from a built path
-     * @param trajectoryDeployDir the dir that the path is in (starting in the deploy directory)
-     * @return the command
-     */
-    public Command ramseteHelper(String trajectoryDeployDir) {
-        Trajectory trajectory = null;
-        try {            
-            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryDeployDir);
-            trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-        } catch (IOException ex) {
-            DriverStation.reportError("Unable to open trajectory: " + trajectoryDeployDir, ex.getStackTrace());
-        }
-
-        drivetrain.resetOdometry(trajectory.getInitialPose());
-
-        return new RamseteCommand(
-            trajectory,
-            drivetrain::getPose,
-            new RamseteController(2, .7),
-            drivetrain.getFeedForward(),
-            drivetrain.getKinematics(),
-            drivetrain::getWheelSpeeds,
-            drivetrain.getLeftController(),
-            drivetrain.getRightController(),
-            (leftVolts, rightVolts) -> drivetrain.tankDriveVolts(leftVolts, rightVolts),
-            drivetrain
-        ).andThen(() -> drivetrain.tankDriveVolts(0, 0));
     }
 
     /**
