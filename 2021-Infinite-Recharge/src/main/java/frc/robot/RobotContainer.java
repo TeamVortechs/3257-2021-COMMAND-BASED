@@ -5,13 +5,19 @@ import java.util.ArrayList;
 import com.ctre.phoenix.music.Orchestra;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj.controller.RamseteController;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.Drivetrain;
@@ -113,7 +119,38 @@ public class RobotContainer {
      * @return the selected auto command
      */
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        //return autoChooser.getSelected();
+        var waypoints = new ArrayList<Translation2d>();
+        //waypoints.add(new Translati)
+        TrajectoryConfig config = new TrajectoryConfig(.4, .4);
+
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
+            new Pose2d(),
+            waypoints,
+            new Pose2d(new Translation2d(1, 2), Rotation2d.fromDegrees(0)),
+            config
+        );
+        drivetrain.resetOdometry(trajectory.getInitialPose());
+        System.out.println("auto command !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        System.out.println(drivetrain.getFeedForward());
+        System.out.println(drivetrain.getWheelSpeeds());
+        System.out.println(drivetrain.getLeftController());
+        System.out.println(drivetrain.getRightController());
+        return new RamseteCommand(
+            trajectory,
+            drivetrain::getPose,
+            new RamseteController(2, .7),
+            drivetrain.getFeedForward(),
+            drivetrain.getKinematics(),
+            drivetrain::getWheelSpeeds,
+            drivetrain.getLeftController(),
+            drivetrain.getRightController(),
+            (leftVolts, rightVolts) -> {
+                System.out.println("l volts: " + leftVolts + " r volts: " + rightVolts);
+                drivetrain.tankDriveVolts(leftVolts, rightVolts);
+            },
+            drivetrain
+        ).andThen(() -> drivetrain.tankDriveVolts(0, 0));
     }
 
     ArrayList<Double> entries = new ArrayList<Double>();

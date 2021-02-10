@@ -12,7 +12,7 @@ public final class Constants {
         public static int frontRightPort = 2;
 
         /* PID Controller Gains */
-        public static double driveP = 0;
+        public static double driveP = 4;
         public static double driveI = 0;
         public static double driveD = 0;
         public static double driveF = 0;

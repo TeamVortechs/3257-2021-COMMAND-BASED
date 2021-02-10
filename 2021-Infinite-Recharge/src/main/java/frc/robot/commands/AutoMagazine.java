@@ -21,7 +21,7 @@ public class AutoMagazine extends CommandBase {
     public void execute() {
         if(!shooter.getShooting() && !magazine.getShooterSensor()) {        // if not shooting and not filled up
             if (magazine.getIntakeSensor()) {                               // succ if ball
-                magazine.setMagazineSpeed(-1);
+                magazine.setMagazineSpeed(-.5);
             }
 
             if(prevIntakeSensorOn != magazine.getIntakeSensor()) {

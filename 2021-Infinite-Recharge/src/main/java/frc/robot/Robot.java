@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
     private Command autonomousCommand;
     public RobotContainer robotContainer;
-    private boolean isCharacterizing = true;
+    private boolean isCharacterizing = false;
 
     @Override
     public void robotInit() {
