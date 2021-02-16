@@ -30,6 +30,10 @@ public class Limelight {
         tableInstance.getEntry("ledMode").setNumber(mode);
     }
 
+    public void setPipeline(int pipeline) {
+        tableInstance.getEntry("pipeline").setNumber(pipeline);
+    }
+
     public double getYawError() {
         return tableInstance.getEntry("tx").getDouble(0);
     }

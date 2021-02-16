@@ -27,8 +27,8 @@ public class Drivetrain extends SubsystemBase {
     private WPI_TalonFX frontLeft = new WPI_TalonFX(DriveConstants.frontLeftPort);
     private WPI_TalonFX frontRight = new WPI_TalonFX(DriveConstants.frontRightPort);
 
-    private PIDController leftController = new PIDController(DriveConstants.driveP, DriveConstants.driveI, DriveConstants.driveD, DriveConstants.driveF);
-    private PIDController rightController = new PIDController(DriveConstants.driveP, DriveConstants.driveI, DriveConstants.driveD, DriveConstants.driveF);
+    private PIDController leftController = new PIDController(DriveConstants.driveP, DriveConstants.driveI, DriveConstants.driveD);
+    private PIDController rightController = new PIDController(DriveConstants.driveP, DriveConstants.driveI, DriveConstants.driveD);
 
     private DifferentialDrive differentialDrive = new DifferentialDrive(frontLeft, frontRight);
     private DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DriveConstants.trackwidth);
@@ -73,10 +73,13 @@ public class Drivetrain extends SubsystemBase {
         SmartDashboard.putData("field", field);
         SmartDashboard.putNumber("rencoder", getRightEncoderPosition());
         SmartDashboard.putNumber("lencoder", getLeftEncoderPosition());
+        SmartDashboard.putNumber("gyro", getHeading());
     }
 
     public void tankDriveVolts(double left, double right) {
+        System.out.println("L: " + left + " R: " + right);
         tankDrive(left / 12, right / 12);
+        
     }
 
     public void tankDrive(double left, double right) {
@@ -121,11 +124,15 @@ public class Drivetrain extends SubsystemBase {
     public DifferentialDriveWheelSpeeds getWheelSpeeds() { return new DifferentialDriveWheelSpeeds(metersPerSecondToNative(frontLeft.getSelectedSensorVelocity()), metersPerSecondToNative(frontRight.getSelectedSensorVelocity())); }
     public Pose2d getPose() { return odometry.getPoseMeters(); }
     public void resetOdometry() { 
-        frontLeft.getSensorCollection().setIntegratedSensorPosition(0, 100);
-        frontRight.getSensorCollection().setIntegratedSensorPosition(0, 100);
         odometry.resetPosition(new Pose2d(), new Rotation2d()); 
+        gyro.reset();
     }
-    public void resetOdometry(Pose2d pose) { odometry.resetPosition(pose, pose.getRotation()); }
+    public void resetOdometry(Pose2d pose) { 
+        odometry.resetPosition(pose, pose.getRotation()); 
+        frontLeft.setSelectedSensorPosition(0);
+        frontRight.setSelectedSensorPosition(0);
+        gyro.reset();
+    }
 
     /* PID Getters */
     public PIDController getLeftController() { return leftController; }
@@ -146,6 +153,6 @@ public class Drivetrain extends SubsystemBase {
 
     /* MISC */
     public void setSlowMode(boolean on) {
-        differentialDrive.setMaxOutput(on ? 0.3 : 1);
+        differentialDrive.setMaxOutput(on ? 0.2 : 1);
     }
 }

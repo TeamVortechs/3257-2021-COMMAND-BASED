@@ -9,7 +9,8 @@ import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import frc.robot.utils.RamseteCommand;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.Drivetrain;
 
 public class RamseteHelper {
@@ -24,6 +25,7 @@ public class RamseteHelper {
         try {            
             Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryDir);
             trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+            System.out.println("PATH FOUND: "+trajectoryPath);
         } catch (IOException ex) {
             DriverStation.reportError("Unable to open trajectory: " + trajectoryDir, ex.getStackTrace());
         }
@@ -39,7 +41,10 @@ public class RamseteHelper {
             drivetrain::getWheelSpeeds,
             drivetrain.getLeftController(),
             drivetrain.getRightController(),
-            (leftVolts, rightVolts) -> drivetrain.tankDriveVolts(leftVolts, rightVolts),
+            (leftVolts, rightVolts) -> {
+                System.out.println("l volts: " + leftVolts + " | r volts: " + rightVolts);
+                drivetrain.tankDriveVolts(leftVolts, rightVolts);
+            },
             drivetrain
         ).andThen(() -> drivetrain.tankDriveVolts(0, 0));
     }

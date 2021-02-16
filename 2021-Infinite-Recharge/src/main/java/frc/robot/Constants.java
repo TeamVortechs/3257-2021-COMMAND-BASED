@@ -12,27 +12,29 @@ public final class Constants {
         public static int frontRightPort = 2;
 
         /* PID Controller Gains */
-        public static double driveP = 0;
+        public static double driveP = 21.3;
         public static double driveI = 0;
         public static double driveD = 0;
         public static double driveF = 0;
 
         public static double trackingGain = 0.05;
-
+        public static double shootingTrackingGain = 0.06;
+        public static double shootingTrackingFeedForward = 1;
+        
         /* Other Settings */
         public static boolean leftEncoderInverted = true;
         public static boolean rightEncoderInverted = false;
 
         /* Feedforward Gains (Get these by using the WPIlib characterization tool) */
-        public static double s = 0.99; // Volts
-        public static double v = 7.31; // Volts * Seconds / Meters
-        public static double a = 0.443; // Volts * Seconds^2 / Meters
+        public static double s = 0.504; // Volts
+        public static double v = 2.27; // Volts * Seconds / Meters
+        public static double a = 0.174; // Volts * Seconds^2 / Meters
         
         /* Physical Constants */
-        public static double wheelDiameter = Units.inchesToMeters(6);
+        public static double wheelDiameter = Units.inchesToMeters(4);
         public static double encoderCountsPerRotation = 2048;
         public static double gearboxRatio = 0.1;
-        public static double trackwidth = 0;
+        public static double trackwidth = Units.feetToMeters(1.9022538253313759);
         public static boolean invertGyro = false; // Set to counterclockwise is positive
     }
     
@@ -46,7 +48,6 @@ public final class Constants {
         public static double flywheelP = .1;
         public static double flywheelI = 0;
         public static double flywheelD = 0;
-        public static double flywheelF = 0;
 
         /* More PID stuff */
         public static double rpmTolerance = 30;

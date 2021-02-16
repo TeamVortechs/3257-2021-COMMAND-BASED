@@ -5,7 +5,6 @@ import frc.robot.subsystems.Magazine;
 import frc.robot.subsystems.Shooter;
 
 public class DumbAutoShoot extends SequentialCommandGroup {
-
     /**
      * Big sequential command to dumbly (not many sensors) shoot all the balls
      * there is literally no reason to use this lmao
@@ -26,7 +25,7 @@ public class DumbAutoShoot extends SequentialCommandGroup {
          * I'm hoping that with extra time I can get it to use the magazine sensors to help out with this
          */
         addCommands(
-            new InstantCommand(() -> { 
+            /*new InstantCommand(() -> { 
                 shooter.enable();
                 shooter.setSetpoint(flywheelRPM);
             }),
@@ -49,10 +48,10 @@ public class DumbAutoShoot extends SequentialCommandGroup {
             new WaitUntilCommand(shooter.atSetpoint()).withTimeout(pidTimeout)
                 .andThen(new InstantCommand(() -> magazine.setMagazineSpeed(intestineSpeed)))
                 .andThen(new WaitCommand(.5))
-                .andThen(new InstantCommand(() -> magazine.setMagazineSpeed(0))),
+                .andThen(new InstantCommand(() -> magazine.setMagazineSpeed(0))),*/
             new InstantCommand(() -> { 
-                shooter.setSetpoint(0);
-                shooter.disable(); 
+                //shooter.setSetpoint(0);
+                //shooter.disable(); 
             })
         );
     }

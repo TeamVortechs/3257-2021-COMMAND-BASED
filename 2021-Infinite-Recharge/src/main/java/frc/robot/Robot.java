@@ -1,6 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
@@ -11,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
     private Command autonomousCommand;
     public RobotContainer robotContainer;
-    private boolean isCharacterizing = true;
+    private boolean isCharacterizing = false;
 
     @Override
     public void robotInit() {
@@ -22,6 +21,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         // Always schedule commands
         CommandScheduler.getInstance().run();
+        robotContainer.log();
     }
 
     @Override
@@ -37,16 +37,10 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        robotContainer.resetOdometry(new Pose2d(new Translation2d(13, 5), new Rotation2d())); // foo bar
-        // Run the selected autonomous command if it exists
-        if (isCharacterizing) {
-            NetworkTableInstance.getDefault().setUpdateRate(0.010);
-        }
-        else {
-            autonomousCommand = robotContainer.getAutonomousCommand();
-            if (autonomousCommand != null) {
-                autonomousCommand.schedule();
-            }
+        autonomousCommand = robotContainer.getAutonomousCommand();
+        if (autonomousCommand != null) {
+            System.out.println("Scheduling the auto command");
+            autonomousCommand.schedule();
         }
     }
 

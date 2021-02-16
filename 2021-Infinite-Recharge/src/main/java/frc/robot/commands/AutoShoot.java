@@ -27,8 +27,8 @@ public class AutoShoot extends SequentialCommandGroup {
          */
         addCommands(
             new InstantCommand(() -> { 
-                shooter.enable();                                                               // Enable and start shooter
-                shooter.setSetpoint(shooter.getCurrentTargetRPM());                             // Set shooter rpm
+                //shooter.enable();                                                               // Enable and start shooter
+                //shooter.setSetpoint(shooter.getCurrentTargetRPM());                             // Set shooter rpm
                 shooter.setShooting(true);                                                      // Set mag shooting mode (disable auto intake)
             }),
             new ShootCell(magazine, shooter).withInterrupt(() -> magazine.getEmpty()),          // Shoot a power cell
@@ -37,7 +37,7 @@ public class AutoShoot extends SequentialCommandGroup {
             new ShootCell(magazine, shooter).withInterrupt(() -> magazine.getEmpty()),          // Shoot a power cell
             new ShootCell(magazine, shooter).withInterrupt(() -> magazine.getEmpty()),          // Shoot a power cell
             new InstantCommand(() -> {                                                          // Disable shooter
-                shooter.disable();
+                //shooter.disable();
                 shooter.setShooting(false);
             })
         );

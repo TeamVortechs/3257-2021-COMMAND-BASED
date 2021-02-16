@@ -14,7 +14,7 @@ public class ShootCell extends SequentialCommandGroup {
             new InstantCommand(() -> magazine.setMagazineSpeed(-1)),                                                    // Run Magazine
             new WaitUntilCommand(() -> magazine.getShooterSensor()).withTimeout(0.5),                                   // ...until ball is detected (or timeout is reached)
             new InstantCommand(() -> magazine.setEmpty(!magazine.getShooterSensor())),                                  // if the timeout is reached and there is no ball, tell the magazine its empty
-            new WaitUntilCommand(shooter.atSetpoint()).withTimeout(0.7),                                                // if there is a ball, wait 'til the shooter is up to speed
+            //new WaitUntilCommand(shooter.atSetpoint()).withTimeout(0.7),                                                // if there is a ball, wait 'til the shooter is up to speed
             new RunCommand(() -> magazine.setMagazineSpeed(-0.7)).withInterrupt(() -> !magazine.getShooterSensor())     // run the magazine until the ball is properly shot
         );
     }
