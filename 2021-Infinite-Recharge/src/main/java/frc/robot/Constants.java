@@ -12,7 +12,7 @@ public final class Constants {
         public static int frontRightPort = 2;
 
         /* PID Controller Gains */
-        public static double driveP = 21.3;
+        public static double driveP = 3;
         public static double driveI = 0;
         public static double driveD = 0;
         public static double driveF = 0;
@@ -21,14 +21,16 @@ public final class Constants {
         public static double shootingTrackingGain = 0.06;
         public static double shootingTrackingFeedForward = 1;
         
+        public static double turnPIDTolerance;
+        
         /* Other Settings */
         public static boolean leftEncoderInverted = true;
         public static boolean rightEncoderInverted = false;
 
         /* Feedforward Gains (Get these by using the WPIlib characterization tool) */
-        public static double s = 0.504; // Volts
-        public static double v = 2.27; // Volts * Seconds / Meters
-        public static double a = 0.174; // Volts * Seconds^2 / Meters
+        public static double s = 0.504; // Volts                                   0.536
+        public static double v = 2.27; // Volts * Seconds / Meters                 0.705
+        public static double a = 0.174; // Volts * Seconds^2 / Meters              0.548
         
         /* Physical Constants */
         public static double wheelDiameter = Units.inchesToMeters(4);

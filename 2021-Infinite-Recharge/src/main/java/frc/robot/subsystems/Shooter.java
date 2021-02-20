@@ -3,16 +3,10 @@ package frc.robot.subsystems;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.utils.Limelight;
 
-import java.util.function.BooleanSupplier;
-
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends /*PIDSubsystem*/ SubsystemBase {
