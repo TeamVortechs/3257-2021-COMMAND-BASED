@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.kauailabs.navx.frc.AHRS;
@@ -52,34 +53,38 @@ public class Drivetrain extends SubsystemBase {
         frontRight.configFactoryDefault();
 
         frontLeft.setInverted(InvertType.None);
+        frontLeft.setNeutralMode(NeutralMode.Coast);
         frontLeft.configOpenloopRamp(1/2);
+        frontLeft.setSensorPhase(true);
         backLeft.follow(frontLeft);
+        backLeft.setNeutralMode(NeutralMode.Coast);
         backLeft.setInverted(InvertType.FollowMaster);
         
         frontRight.setInverted(InvertType.None);
-        frontLeft.setSensorPhase(true);
+        frontRight.setNeutralMode(NeutralMode.Coast);
         frontRight.configOpenloopRamp(1/2);
         backRight.follow(frontRight);
         backRight.setInverted(InvertType.FollowMaster);
+        backRight.setNeutralMode(NeutralMode.Coast);
     }
     
     @Override
     public void periodic() {
         // Every 20ms, update the robot's field oriented position
-        odometry.update(Rotation2d.fromDegrees(getHeading()), nativeToMeters(frontLeft.getSelectedSensorPosition()), nativeToMeters(frontRight.getSelectedSensorPosition()));
+        odometry.update(Rotation2d.fromDegrees(getHeading()), getLeftEncoderPosition(), getRightEncoderPosition());
 
         // Display that position on a virtual field - this can be seen in the field2d widget in Shuffleboard or glass
-        field.setRobotPose(odometry.getPoseMeters());
+        field.setRobotPose(new Pose2d(odometry.getPoseMeters().getX(), odometry.getPoseMeters().getY(), odometry.getPoseMeters().getRotation()));
         SmartDashboard.putData("field", field);
         SmartDashboard.putNumber("rencoder", getRightEncoderPosition());
         SmartDashboard.putNumber("lencoder", getLeftEncoderPosition());
+        SmartDashboard.putNumber("rencoderSPEED", getRightEncoderVelocity());
+        SmartDashboard.putNumber("lencoderSPEED", getLeftEncoderVelocity());
         SmartDashboard.putNumber("gyro", getHeading());
     }
 
     public void tankDriveVolts(double left, double right) {
-        System.out.println("L: " + left + " R: " + right);
         tankDrive(left / 12, right / 12);
-        
     }
 
     public void tankDrive(double left, double right) {
@@ -116,15 +121,23 @@ public class Drivetrain extends SubsystemBase {
         return inverted ? nativeToMeters(meters) * -1 : nativeToMeters(meters);
     }
 
+    public void setNeutralMode(NeutralMode mode) {
+        frontLeft.setNeutralMode(mode);
+        frontRight.setNeutralMode(mode);
+        backLeft.setNeutralMode(mode);
+        backRight.setNeutralMode(mode);
+    }
     // This is gross
     public ArrayList<TalonFX> getTalonFXs() { return new ArrayList<> (Arrays.asList(new TalonFX[] { backLeft, backRight, frontLeft, frontRight })); }
 
     /* Odometry Helper Functions */
     public DifferentialDriveKinematics getKinematics() { return kinematics; }
-    public DifferentialDriveWheelSpeeds getWheelSpeeds() { return new DifferentialDriveWheelSpeeds(metersPerSecondToNative(frontLeft.getSelectedSensorVelocity()), metersPerSecondToNative(frontRight.getSelectedSensorVelocity())); }
+    public DifferentialDriveWheelSpeeds getWheelSpeeds() { return new DifferentialDriveWheelSpeeds(getLeftEncoderVelocity(), getLeftEncoderVelocity()); }
     public Pose2d getPose() { return odometry.getPoseMeters(); }
     public void resetOdometry() { 
         odometry.resetPosition(new Pose2d(), new Rotation2d()); 
+        frontLeft.setSelectedSensorPosition(0);
+        frontRight.setSelectedSensorPosition(0);
         gyro.reset();
     }
     public void resetOdometry(Pose2d pose) { 

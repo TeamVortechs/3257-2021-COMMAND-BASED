@@ -192,7 +192,6 @@ public class RamseteCommand extends CommandBase {
       leftOutput = leftSpeedSetpoint;
       rightOutput = rightSpeedSetpoint;
     }
-    System.out.println(m_rightController.calculate(m_speeds.get().rightMetersPerSecond, rightSpeedSetpoint));
     System.out.println(leftSpeedSetpoint + " " + rightSpeedSetpoint);
     m_output.accept(leftOutput, rightOutput);
     m_prevSpeeds = targetWheelSpeeds;

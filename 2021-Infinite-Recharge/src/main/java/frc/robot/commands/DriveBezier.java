@@ -22,6 +22,7 @@ public class DriveBezier extends CommandBase
         this.speed = speed;
         this.curve = curve;
         this.inverted = false;
+        this.drivetrain = drivetrain;
     }
 
     public DriveBezier(double speed, BezierCurve curve, boolean inverted, Drivetrain drivetrain)
@@ -30,6 +31,7 @@ public class DriveBezier extends CommandBase
         this.speed = speed;
         this.curve = curve;
         this.inverted = inverted;
+        this.drivetrain = drivetrain;
     }
 
     public DriveBezier(double speed, Point2D end, Point2D control1, Point2D control2, Drivetrain drivetrain) 
@@ -38,6 +40,7 @@ public class DriveBezier extends CommandBase
         this.speed = speed;
         this.curve = new BezierCurve(control1, control2, end);
         this.inverted = false;
+        this.drivetrain = drivetrain;
     }
 
     public DriveBezier(double speed, Point2D end, Point2D control1, Point2D control2, boolean inverted, Drivetrain drivetrain) 
@@ -46,6 +49,7 @@ public class DriveBezier extends CommandBase
         this.speed = speed;
         this.curve = new BezierCurve(control1, control2, end);
         this.inverted = inverted;
+        this.drivetrain = drivetrain;
     }
 
     @Override
@@ -54,10 +58,10 @@ public class DriveBezier extends CommandBase
 
 
     @Override
-    public void execute() 
+    public void execute()
     {
         SmartDashboard.putNumber("Bezier Curve: ",  curve.getPos(timeAlongCurve).getY());
-
+        System.out.println((drivetrain.getLeftEncoderPosition() + " " + drivetrain.getRightEncoderPosition() + " " + curve.getLength()));
         double temp = Math.abs((drivetrain.getLeftEncoderPosition() + drivetrain.getRightEncoderPosition()) / 2);
         timeAlongCurve = inverted ? (curve.getLength() - temp) - 0.02 : temp;
 
@@ -68,7 +72,8 @@ public class DriveBezier extends CommandBase
     @Override
     public boolean isFinished() 
     {
-        return inverted ? timeAlongCurve < 0.02 : timeAlongCurve >= curve.getLength();
+        return false;
+        //return inverted ? timeAlongCurve < 0.02 : timeAlongCurve >= curve.getLength();
     }
 
     double Clamp(double value, double min, double max)

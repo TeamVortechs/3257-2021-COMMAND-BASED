@@ -12,7 +12,7 @@ public final class Constants {
         public static int frontRightPort = 2;
 
         /* PID Controller Gains */
-        public static double driveP = 3;
+        public static double driveP = 0.0147;
         public static double driveI = 0;
         public static double driveD = 0;
         public static double driveF = 0;
@@ -28,16 +28,19 @@ public final class Constants {
         public static boolean rightEncoderInverted = false;
 
         /* Feedforward Gains (Get these by using the WPIlib characterization tool) */
-        public static double s = 0.504; // Volts                                   0.536
+        /*public static double s = 0.504; // Volts                                   0.536
         public static double v = 2.27; // Volts * Seconds / Meters                 0.705
-        public static double a = 0.174; // Volts * Seconds^2 / Meters              0.548
+        public static double a = 0.174; // Volts * Seconds^2 / Meters   */
+        public static double s = 0.99;
+        public static double v = 7.31;
+        public static double a = 0.443;
         
         /* Physical Constants */
         public static double wheelDiameter = Units.inchesToMeters(4);
         public static double encoderCountsPerRotation = 2048;
         public static double gearboxRatio = 0.1;
         public static double trackwidth = Units.feetToMeters(1.9022538253313759);
-        public static boolean invertGyro = false; // Set to counterclockwise is positive
+        public static boolean invertGyro = true; // Set to counterclockwise is positive
     }
     
     public static class ShooterConstants {
@@ -54,12 +57,7 @@ public final class Constants {
         /* More PID stuff */
         public static double rpmTolerance = 30;
 
-        /* Speeds and feeds */
-        public static double defaultRPM = 530;
-        public static double longshotRPM = 810;
-
         public static double intestineSpeed = -0.7;
-        public static double pidTimeout = 1.4;
 
         public static double encoderDPR = (double)1/(double)2048;
     }

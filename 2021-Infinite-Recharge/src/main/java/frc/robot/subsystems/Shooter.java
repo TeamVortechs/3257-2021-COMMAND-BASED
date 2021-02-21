@@ -7,9 +7,10 @@ import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 
-public class Shooter extends /*PIDSubsystem*/ SubsystemBase {
+public class Shooter extends PIDSubsystem {
     private WPI_TalonSRX flywheel1 = new WPI_TalonSRX(ShooterConstants.flywheelMotor1Port);
     private WPI_TalonSRX flywheel2 = new WPI_TalonSRX(ShooterConstants.flywheelMotor2Port);
     private Encoder flywheelEncoder = new Encoder(ShooterConstants.flywheelEncoderPorts[0], ShooterConstants.flywheelEncoderPorts[1]);
@@ -18,10 +19,10 @@ public class Shooter extends /*PIDSubsystem*/ SubsystemBase {
     private Limelight shooterLimelight = new Limelight("limelight-top");
 
     private boolean shooting;
-
+    private double percentOutput=1;
     public Shooter() {
         // This is a PID subsystems, so we tell WPIlib some basic settings.
-        //super(new PIDController(ShooterConstants.flywheelP, ShooterConstants.flywheelI, ShooterConstants.flywheelD));
+        super(new PIDController(ShooterConstants.flywheelP, ShooterConstants.flywheelI, ShooterConstants.flywheelD));
         flywheelEncoder.setDistancePerPulse(ShooterConstants.encoderDPR);
         flywheelEncoder.setReverseDirection(true);
             shooterLimelight.setPipeline(2);
@@ -30,12 +31,12 @@ public class Shooter extends /*PIDSubsystem*/ SubsystemBase {
     /*public BooleanSupplier atSetpoint() {
         // We're at the setpoint if the distance between the target and actual rpm is under some threshold
         //return () -> Math.abs(getSetpoint() - getMeasurement()) < ShooterConstants.rpmTolerance;
-    }
-    /*
+    }*/
+    
     @Override
     public double getMeasurement() {
         // Supply the flywheel rpm as the primary PID measurement
-        return flywheelEncoder.getRate() * 60;
+        return flywheelEncoder.getRate();
     }
 
     @Override
@@ -44,7 +45,7 @@ public class Shooter extends /*PIDSubsystem*/ SubsystemBase {
         flywheel1.set(output);
         flywheel2.set(output);
         System.out.println(output);
-    }*/
+    }
 
     /* State and Sensor Getters */
     public boolean getShooting() { return shooting; }
@@ -63,4 +64,10 @@ public class Shooter extends /*PIDSubsystem*/ SubsystemBase {
         flywheel1.set(TalonSRXControlMode.PercentOutput, percent);
         flywheel2.set(TalonSRXControlMode.PercentOutput, percent);
     }
+
+    public void changeVariablePercent(double change) {
+        percentOutput = percentOutput + change;
+        System.out.println("SHOOTER PERCENT: " + percentOutput);
+    }
+    public double getShooterVariableSpeed() { return percentOutput; }
 }
