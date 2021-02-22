@@ -42,7 +42,24 @@ public final class Constants {
         public static double trackwidth = Units.feetToMeters(1.9022538253313759);
         public static boolean invertGyro = true; // Set to counterclockwise is positive
     }
-    
+
+    public static class GSCConstants {
+        /* Distance Constants for the GSC Paths (in feet) */
+        public static double aBluePathDistance = Units.feetToMeters(1);
+        public static double aRedPathDistance = Units.feetToMeters(1);
+        public static double bBluePathDistance = Units.feetToMeters(1);
+        public static double bRedPathDistance = Units.feetToMeters(1);
+
+        public static double bkwdDistance = Units.feetToMeters(1);
+
+        public static double pathDists[] = { 
+            aBluePathDistance,
+            aRedPathDistance, 
+            bBluePathDistance, 
+            bRedPathDistance 
+        };
+    }
+
     public static class ShooterConstants {
         /* Shooter Ports */
         public static int flywheelMotor1Port = 7;
@@ -62,9 +79,10 @@ public final class Constants {
         public static double encoderDPR = (double)1/(double)2048;
     }
 
-    public static class BallPathConstants {
+    public static class MagazineConstants {
         /* Ball Path Ports */
         public static int intakePort = 0;
+        public static int intakePowerChannel = 0;
 
         public static int magazinePort = 6;
         public static int[] magazineEncoderPorts = new int[] {0, 1};
@@ -73,6 +91,7 @@ public final class Constants {
         public static int intakeBallSensorPort = 7;
         public static int shooterBallSensorPort = 4;
 
+        public static int lidarPort = 9;
     }
 
     public static class OIConstants {

@@ -17,11 +17,11 @@ import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Magazine;
 import frc.robot.utils.RamseteCommand;
 
-public class GalacticSearch extends SequentialCommandGroup {
+public class GalacticSearchTree extends SequentialCommandGroup {
 
     int chosenPath = -1;
 
-    public GalacticSearch(Drivetrain drivetrain, Magazine magazine) {
+    public GalacticSearchTree(Drivetrain drivetrain, Magazine magazine) {
         for (int i = 0; i < 3; i++) {
             final int step = i + 1;
             addCommands(
@@ -67,14 +67,5 @@ public class GalacticSearch extends SequentialCommandGroup {
             new PrintCommand("If nothing went horribly wrong, I am at the endzone with all 3 balls!")
         );
     }
-
-    public static Hashtable<Integer, String> stepToOutput = new Hashtable<Integer, String>() {
-        private static final long serialVersionUID = -436855052785248771L;
-        {
-            put(1, "PATH B RED");
-            put(2, "PATH A RED");
-            put(3, "PATH A BLUE");
-            put(4, "PATH B BLUE");
-        }
-    };
+    
 }

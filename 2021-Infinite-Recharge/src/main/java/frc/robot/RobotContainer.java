@@ -7,6 +7,7 @@ import com.ctre.phoenix.music.Orchestra;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.RamseteController;
@@ -31,6 +32,7 @@ public class RobotContainer {
     Shooter shooter = new Shooter();
     Drivetrain drivetrain = new Drivetrain();
     Magazine magazine = new Magazine();
+    PowerDistributionPanel pdp = new PowerDistributionPanel();
     SendableChooser<Command> autoChooser = new SendableChooser<Command>();
     XboxJoystick driverController = new XboxJoystick(OIConstants.driverControllerPort);
     XboxJoystick operatorController = new XboxJoystick(OIConstants.operatorControllerPort);

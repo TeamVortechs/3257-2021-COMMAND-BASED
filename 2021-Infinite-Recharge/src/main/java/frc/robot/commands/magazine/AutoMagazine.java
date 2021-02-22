@@ -1,45 +1,55 @@
 package frc.robot.commands.magazine;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Timer;
+
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.MagazineConstants;
 import frc.robot.subsystems.Magazine;
-import frc.robot.subsystems.Shooter;
 
 public class AutoMagazine extends CommandBase {
     private Magazine magazine;
-    private Shooter shooter;
-    
-    // These are for adding callbacks when the intake and shooter sensors change, theres probably some slick way of doing this
+    private PowerDistributionPanel pdp;
     private boolean prevIntakeSensorOn;
 
-    public AutoMagazine(Magazine magazine, Shooter shooter) {
-        this.shooter = shooter;
+    public AutoMagazine(Magazine magazine, PowerDistributionPanel pdp) {
         this.magazine = magazine;
+        this.pdp = pdp;
         addRequirements(magazine);
     }
 
     @Override
     public void execute() {
-        if(!shooter.getShooting() && !magazine.getShooterSensor()) {        // if not shooting and not filled up
-            if (magazine.getIntakeSensor()) {                               // succ if ball
-                magazine.setMagazineSpeed(-1);
+        if (!magazine.getShooterSensor()) {
+            if (prevIntakeSensorOn != magazine.getIntakeSensor()) {
+                if (magazine.getIntakeSensor()) {
+                    magazine.setMagazineSpeed(-1);
+                }
+                else {
+                    Timer timer = new Timer(200, (ActionListener) new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent arg0) {
+                            magazine.setMagazineSpeed(0);
+                        }
+                    });
+                    timer.setRepeats(false);
+                    timer.start();
+                }
+                prevIntakeSensorOn = magazine.getIntakeSensor();
             }
 
-            if(prevIntakeSensorOn != magazine.getIntakeSensor()) {
-                if (magazine.getIntakeSensor()) {                           // the first frame it gets a ball
-                    magazine.setEmpty(false);                               // let it know theres atleast one ball there
-                }
-                else {                                                      // the first frame a ball leaves
-                    magazine.setMagazineSpeed(0);                           // turn off mag
-                }
-
-                prevIntakeSensorOn = magazine.getIntakeSensor();            // update
+            if (pdp.getCurrent(MagazineConstants.intakePowerChannel) > 100) {
+                magazine.setMagazineSpeed(-1);
             }
         }
     }   
 
     @Override
     public void end(boolean interrupted) {
-        magazine.setMagazineSpeed(0);                                       // turn off mag for safety
+        magazine.setMagazineSpeed(0);
     }
 
     @Override

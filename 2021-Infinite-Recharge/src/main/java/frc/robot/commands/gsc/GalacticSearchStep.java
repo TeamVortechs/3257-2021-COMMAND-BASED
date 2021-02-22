@@ -11,7 +11,7 @@ import frc.robot.utils.RamseteHelper;
 public class GalacticSearchStep extends SequentialCommandGroup {
 
     public GalacticSearchStep(BooleanSupplier condition, Runnable ballFoundRunnable, int step, Drivetrain drivetrain) {
-        String stepName = GalacticSearch.stepToOutput.get(step);
+        String stepName = GalacticSearchLIDAR.stepToOutput.get(step).x;
         addCommands(
             // Drive first search path
             RamseteHelper.fromPath(drivetrain, "/autonomous/GSC_Search" + step + ".wpilib.json"),
