@@ -184,7 +184,7 @@ public class RobotContainer {
         return new InstantCommand(()->{
             magazine.setIntakeSpeed(.7);
             magazine.setMagazineSpeed(-.24);
-        }).andThen(RamseteHelper.fromPath(drivetrain, "./autonomous/Unnamed_0.wpilib.json"))
+        }).andThen(RamseteHelper.fromPath(drivetrain, "./autonomous/full/A_BLUE.wpilib.json"))
         .andThen(() -> {
             //drivetrain.tankDriveVolts(0, 0);
             magazine.setIntakeSpeed(0);
