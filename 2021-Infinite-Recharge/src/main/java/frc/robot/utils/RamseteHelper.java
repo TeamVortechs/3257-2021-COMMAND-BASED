@@ -24,7 +24,7 @@ public class RamseteHelper {
             Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryDir);
             trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
             System.out.println("PATH FOUND: "+trajectoryPath);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             DriverStation.reportError("Unable to open trajectory: " + trajectoryDir, ex.getStackTrace());
         }
 
@@ -41,10 +41,10 @@ public class RamseteHelper {
             drivetrain.getRightController(),
             (leftVolts, rightVolts) -> {
                 System.out.println("l volts: " + leftVolts + " | r volts: " + rightVolts);
-                drivetrain.tankDriveVolts(leftVolts, rightVolts);
+                drivetrain.tankDriveVolts(-leftVolts, -rightVolts);
             },
             drivetrain
-        ).andThen(() -> drivetrain.tankDriveVolts(0, 0));
+        ).andThen(()->drivetrain.tankDrive(0, 0));
     }
 
 }

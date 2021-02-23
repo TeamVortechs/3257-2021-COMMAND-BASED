@@ -1,6 +1,5 @@
 package frc.robot.commands.gsc;
 
-import java.util.Hashtable;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.controller.RamseteController;

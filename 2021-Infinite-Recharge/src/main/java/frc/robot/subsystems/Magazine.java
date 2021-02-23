@@ -7,8 +7,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.MagazineConstants;
-import frc.robot.utils.LIDAR;
 import frc.robot.utils.Limelight;
+import frc.robot.utils.LIDAR;
 
 public class Magazine extends SubsystemBase {
     private Spark intake = new Spark(MagazineConstants.intakePort);

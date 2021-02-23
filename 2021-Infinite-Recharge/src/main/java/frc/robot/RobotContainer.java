@@ -3,6 +3,7 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.music.Orchestra;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -10,6 +11,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
@@ -19,8 +21,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.utils.RamseteCommand;
+import frc.robot.utils.RamseteHelper;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Magazine;
 import frc.robot.subsystems.Shooter;
@@ -151,7 +156,7 @@ public class RobotContainer {
                 System.out.println((drivetrain.getLeftEncoderPosition()+drivetrain.getRightEncoderPosition())/2);
                 drivetrain.tankDrive(-output, -output);
             }, drivetrain);*/
-        
+        /*
         TrajectoryConfig config = new TrajectoryConfig(1, 1);
         config.setKinematics(drivetrain.getKinematics());
         return new RamseteCommand(
@@ -175,9 +180,29 @@ public class RobotContainer {
                 drivetrain.tankDriveVolts(-leftVolts, -rightVolts);
             },
             drivetrain
-        );
-        //return RamseteHelper.fromPath(drivetrain, "./autonomous/GSC_Search1.wpilib.json").andThen(() -> drivetrain.tankDriveVolts(0, 0));
-        
+        );*/
+        return new InstantCommand(()->{
+            magazine.setIntakeSpeed(.7);
+            magazine.setMagazineSpeed(-.24);
+        }).andThen(RamseteHelper.fromPath(drivetrain, "./autonomous/Unnamed_0.wpilib.json"))
+        .andThen(() -> {
+            //drivetrain.tankDriveVolts(0, 0);
+            magazine.setIntakeSpeed(0);
+            magazine.setMagazineSpeed(0);
+            drivetrain.resetOdometry();
+            //drivetrain.setNeutralMode(NeutralMode.Coast);
+        });
+        // unnamed = red a
+        // _0 = blue a
+        /*.andThen(new PIDCommand(
+            new PIDController(1.2, 0.1, 0), 
+            ()->(drivetrain.getLeftEncoderPosition()+drivetrain.getRightEncoderPosition())/2,
+            () -> 3.25, 
+            (output) -> {
+                System.out.println((drivetrain.getLeftEncoderPosition()+drivetrain.getRightEncoderPosition())/2);
+                drivetrain.arcadeDrive(-output, 0.02);
+            }, drivetrain)
+        ).andThen(()->drivetrain.setNeutralMode(NeutralMode.Brake));*/
     }
 
 
