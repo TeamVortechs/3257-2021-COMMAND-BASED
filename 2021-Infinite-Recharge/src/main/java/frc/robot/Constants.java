@@ -45,10 +45,10 @@ public final class Constants {
 
     public static class GSCConstants {
         /* Distance Constants for the GSC Paths (in feet) */
-        public static double aBluePathDistance = Units.feetToMeters(1);
-        public static double aRedPathDistance = Units.feetToMeters(1);
-        public static double bBluePathDistance = Units.feetToMeters(1);
-        public static double bRedPathDistance = Units.feetToMeters(1);
+        public static double aBluePathDistance = 105;
+        public static double aRedPathDistance = 225;
+        public static double bBluePathDistance = 43;
+        public static double bRedPathDistance = 370;
 
         public static double bkwdDistance = Units.feetToMeters(1);
 
@@ -91,7 +91,7 @@ public final class Constants {
         public static int intakeBallSensorPort = 7;
         public static int shooterBallSensorPort = 4;
 
-        public static int lidarPort = 9;
+        public static int lidarPort = 0;
     }
 
     public static class OIConstants {

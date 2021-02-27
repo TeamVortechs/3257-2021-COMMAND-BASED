@@ -57,6 +57,7 @@ public class RobotContainer {
 
     public void log(){
         //SmartDashboard.putNumber(key, value)
+        System.out.println(magazine.getMagazineLidarDist());
     }
 
     // DRIVER
@@ -182,9 +183,9 @@ public class RobotContainer {
             drivetrain
         );*/
         return new InstantCommand(()->{
-            magazine.setIntakeSpeed(.7);
-            magazine.setMagazineSpeed(-.24);
-        }).andThen(RamseteHelper.fromPath(drivetrain, "./autonomous/full/A_BLUE.wpilib.json"))
+            magazine.setIntakeSpeed(0.4);
+            magazine.setMagazineSpeed(-0.7);
+        }).andThen(RamseteHelper.fromPath(drivetrain, "./autonomous/full/Unnamed.wpilib.json"))
         .andThen(() -> {
             //drivetrain.tankDriveVolts(0, 0);
             magazine.setIntakeSpeed(0);
@@ -192,8 +193,7 @@ public class RobotContainer {
             drivetrain.resetOdometry();
             //drivetrain.setNeutralMode(NeutralMode.Coast);
         });
-        // unnamed = red a
-        // _0 = blue a
+        // unnamed = red b
         /*.andThen(new PIDCommand(
             new PIDController(1.2, 0.1, 0), 
             ()->(drivetrain.getLeftEncoderPosition()+drivetrain.getRightEncoderPosition())/2,
@@ -272,6 +272,11 @@ public class RobotContainer {
 
     public void resetOdometry(Pose2d pose2d) {
         drivetrain.resetOdometry(pose2d);
+    }
+
+    public void stopMag() {
+        magazine.setIntakeSpeed(0);
+        magazine.setMagazineSpeed(0);
     }
 
     public void stopDrivetrain() {
