@@ -50,13 +50,18 @@ public final class Constants {
         public static double bBluePathDistance = 43;
         public static double bRedPathDistance = 370;
 
-        public static double bkwdDistance = Units.feetToMeters(1);
-
         public static double pathDists[] = { 
             aBluePathDistance,
             aRedPathDistance, 
             bBluePathDistance, 
             bRedPathDistance 
+        };
+
+        public static String pathNames[] = { 
+            "A_BLUE",
+            "A_RED", 
+            "B_BLUE", 
+            "Unnamed" 
         };
     }
 
