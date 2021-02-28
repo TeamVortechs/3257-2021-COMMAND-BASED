@@ -31,6 +31,7 @@ import frc.robot.subsystems.Magazine;
 import frc.robot.subsystems.Shooter;
 import frc.robot.utils.control.XboxJoystick;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.GSCConstants;
 import frc.robot.Constants.OIConstants;
 
 public class RobotContainer {
@@ -42,6 +43,7 @@ public class RobotContainer {
     XboxJoystick driverController = new XboxJoystick(OIConstants.driverControllerPort);
     XboxJoystick operatorController = new XboxJoystick(OIConstants.operatorControllerPort);
     Orchestra orchestra;
+    ArrayList<Command> pathCommands = new ArrayList<Command>();
 
     public RobotContainer() {
         orchestra = new Orchestra(drivetrain.getTalonFXs());
@@ -53,11 +55,26 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -driverController.getRightStickXValue()), drivetrain)); 
         //magazine.setDefaultCommand(new AutoMagazine(magazine, shooter));
         configureButtonBindings();
+
+        for (String name : GSCConstants.pathNames) {
+            pathCommands.add(RamseteHelper.fromPath(drivetrain, "./autonomous/full/" + name + ".wpilib.json"));
+        }
     }
 
     public void log(){
         //SmartDashboard.putNumber(key, value)
-        System.out.println(magazine.getMagazineLidarDist());
+        /*
+        int path = 0;
+        double min = 100000000;
+        
+        for (int i = 0; i < GSCConstants.pathDists.length; i++) {
+            double distance = Math.abs(magazine.getMagazineLidarDist() - GSCConstants.pathDists[i]);
+            if (distance < min) {
+                min = distance;
+                path = i;
+            }
+        }
+        System.out.println(Math.round(magazine.getMagazineLidarDist()) + " path: " + GSCConstants.pathNames[path]);*/
     }
 
     // DRIVER
@@ -83,7 +100,7 @@ public class RobotContainer {
         // TARGET LOCK - Hold X
         driverController.xButton
         .whenHeld(new RunCommand(() -> {
-                drivetrain.arcadeDrive(driverController.getLeftStickYValue(), shooter.getShooterLimelight().getYawError() * -DriveConstants.shootingTrackingGain);
+                drivetrain.arcadeDrive(driverController.getLeftStickYValue(), shooter.getShooterLimelight().getYawError()/-30);
             }, drivetrain))
             .whenActive(() -> {
                 shooter.getShooterLimelight().setLightState(3);
@@ -93,8 +110,6 @@ public class RobotContainer {
                 shooter.getShooterLimelight().setPipeline(2);
                 shooter.getShooterLimelight().setLightState(1);
             });
-        operatorController.Dpad.Up.whenActive(()->shooter.changeVariablePercent(0.05));
-        operatorController.Dpad.Down.whenActive(()->shooter.changeVariablePercent(-0.05));
 
         // INTAKE IN - Left Trigger
         driverController.rightTriggerButton
@@ -134,6 +149,16 @@ public class RobotContainer {
             .whenInactive(()->{
                 shooter.disable();
             });
+        // VARIABLE FLYWHEEL - Right Trigger
+        operatorController.rightBumper
+            .whenActive(() -> {
+                shooter.setShooterPercent(.3);
+            })
+            .whenInactive(()->{
+                shooter.setShooterPercent(0);
+            });
+        operatorController.Dpad.Up.whenActive(()->shooter.changeVariablePercent(0.05));
+        operatorController.Dpad.Down.whenActive(()->shooter.changeVariablePercent(-0.05));    
     }
 
     /**
@@ -141,68 +166,26 @@ public class RobotContainer {
      * @return the selected auto command
      */
     public Command getAutonomousCommand() {
-        // Paste this into your Autonomous command group
-        /*BezierCurve bezier1 = new BezierCurve(new Point2D.Double(2, 3),new Point2D.Double(2, -3),new Point2D.Double(4, 0));
-        SequentialCommandGroup ret = new SequentialCommandGroup(
-            //new AlignToBezier(0.2, bezier1, 0, drivetrain),
-            new DriveBezier(0.4, bezier1, true, drivetrain).andThen(()->drivetrain.tankDrive(0, 0))
-        );
-
-        //return ret;
-        return new PIDCommand(
-            new PIDController(0.7, 0.1, 0), 
-            ()->(drivetrain.getLeftEncoderPosition()+drivetrain.getRightEncoderPosition())/2,
-            () -> -3, 
-            (output) -> {
-                System.out.println((drivetrain.getLeftEncoderPosition()+drivetrain.getRightEncoderPosition())/2);
-                drivetrain.tankDrive(-output, -output);
-            }, drivetrain);*/
-        /*
-        TrajectoryConfig config = new TrajectoryConfig(1, 1);
-        config.setKinematics(drivetrain.getKinematics());
-        return new RamseteCommand(
-            TrajectoryGenerator.generateTrajectory(
-                new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
-                List.of(
-                    new Translation2d(1, 1),
-                    new Translation2d(2, -1)
-                ), 
-                new Pose2d(3, 0, Rotation2d.fromDegrees(0)), 
-                new TrajectoryConfig(1, 1)),
-            drivetrain::getPose,
-            new RamseteController(2, .7),
-            drivetrain.getFeedForward(),
-            drivetrain.getKinematics(),
-            drivetrain::getWheelSpeeds,
-            drivetrain.getLeftController(),
-            drivetrain.getRightController(),
-            (leftVolts, rightVolts) -> {
-                System.out.println("l volts: " + leftVolts + " | r volts: " + rightVolts);
-                drivetrain.tankDriveVolts(-leftVolts, -rightVolts);
-            },
-            drivetrain
-        );*/
+        int path = 0;
+        double min = 100000000;
+        
+        for (int i = 0; i < GSCConstants.pathDists.length; i++) {
+            double distance = Math.abs(magazine.getMagazineLidarDist() - GSCConstants.pathDists[i]);
+            if (distance < min) {
+                min = distance;
+                path = i;
+            }
+        }
+        System.out.println(Math.round(magazine.getMagazineLidarDist()) + " path: " + GSCConstants.pathNames[path]);
         return new InstantCommand(()->{
-            magazine.setIntakeSpeed(0.4);
-            magazine.setMagazineSpeed(-0.7);
-        }).andThen(RamseteHelper.fromPath(drivetrain, "./autonomous/full/Unnamed.wpilib.json"))
+            magazine.setIntakeSpeed(1);
+            magazine.setMagazineSpeed(-0.4);
+        }).andThen(pathCommands.get(path))
         .andThen(() -> {
-            //drivetrain.tankDriveVolts(0, 0);
             magazine.setIntakeSpeed(0);
             magazine.setMagazineSpeed(0);
             drivetrain.resetOdometry();
-            //drivetrain.setNeutralMode(NeutralMode.Coast);
         });
-        // unnamed = red b
-        /*.andThen(new PIDCommand(
-            new PIDController(1.2, 0.1, 0), 
-            ()->(drivetrain.getLeftEncoderPosition()+drivetrain.getRightEncoderPosition())/2,
-            () -> 3.25, 
-            (output) -> {
-                System.out.println((drivetrain.getLeftEncoderPosition()+drivetrain.getRightEncoderPosition())/2);
-                drivetrain.arcadeDrive(-output, 0.02);
-            }, drivetrain)
-        ).andThen(()->drivetrain.setNeutralMode(NeutralMode.Brake));*/
     }
 
 

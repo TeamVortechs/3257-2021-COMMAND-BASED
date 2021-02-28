@@ -50,7 +50,7 @@ public class LIDAR {
         * The LIDAR-Lite unit sends a high signal for 10 microseconds per cm of distance.
         */
         cm = (counter.getPeriod() * 1000000.0 / 10.0) + CALIBRATION_OFFSET;
-        System.out.println("LidarLitePWM: Got " + cm + "cm");
+        //System.out.println("LidarLitePWM: Got " + cm + "cm");
 	    return cm;
     }
 }

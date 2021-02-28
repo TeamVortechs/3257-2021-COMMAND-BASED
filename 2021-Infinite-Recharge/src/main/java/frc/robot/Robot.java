@@ -20,7 +20,7 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         // Always schedule commands
         CommandScheduler.getInstance().run();
-        
+        robotContainer.log();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
-        robotContainer.log();
+
     }
 
     @Override
