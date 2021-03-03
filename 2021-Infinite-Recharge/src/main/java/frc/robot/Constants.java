@@ -18,7 +18,7 @@ public final class Constants {
         public static double driveF = 0;
 
         public static double trackingGain = 0.1;
-        public static double shootingTrackingGain = 0.06;
+        public static double shootingTrackingGain = 0.05;
         public static double shootingTrackingFeedForward = 1;
         
         public static double turnPIDTolerance;
