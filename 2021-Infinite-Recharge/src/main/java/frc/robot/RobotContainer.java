@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.utils.RamseteCommand;
 import frc.robot.utils.RamseteHelper;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Magazine;
@@ -32,7 +33,6 @@ import frc.robot.utils.control.XboxJoystick;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.GSCConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.gsc.GalacticSearchLIDAR;
 
 public class RobotContainer {
     Shooter shooter = new Shooter();
@@ -43,8 +43,8 @@ public class RobotContainer {
     XboxJoystick driverController = new XboxJoystick(OIConstants.driverControllerPort);
     XboxJoystick operatorController = new XboxJoystick(OIConstants.operatorControllerPort);
     Orchestra orchestra;
+    ArrayList<Command> pathCommands = new ArrayList<Command>();
 
-    ArrayList<Command> pathCommands = new ArrayList<>();
     public RobotContainer() {
         orchestra = new Orchestra(drivetrain.getTalonFXs());
         orchestra.loadMusic("gourmet_race.chrp");
@@ -56,15 +56,25 @@ public class RobotContainer {
         //magazine.setDefaultCommand(new AutoMagazine(magazine, shooter));
         configureButtonBindings();
 
-        for (String pathName : GSCConstants.pathNames) {
-            pathCommands.add(RamseteHelper.fromPath(drivetrain, "./autonomous/full/"+pathName+".wpilib.json"));
+        for (String name : GSCConstants.pathNames) {
+            pathCommands.add(RamseteHelper.fromPath(drivetrain, "./autonomous/full/" + name + ".wpilib.json"));
         }
     }
 
     public void log(){
         //SmartDashboard.putNumber(key, value)
-        //GalacticSearchLIDAR.DeterminePath(magazine, true);
-        //System.out.println(magazine.getMagazineLidarDist());
+        /*
+        int path = 0;
+        double min = 100000000;
+        
+        for (int i = 0; i < GSCConstants.pathDists.length; i++) {
+            double distance = Math.abs(magazine.getMagazineLidarDist() - GSCConstants.pathDists[i]);
+            if (distance < min) {
+                min = distance;
+                path = i;
+            }
+        }
+        System.out.println(Math.round(magazine.getMagazineLidarDist()) + " path: " + GSCConstants.pathNames[path]);*/
     }
 
     // DRIVER
@@ -90,7 +100,7 @@ public class RobotContainer {
         // TARGET LOCK - Hold X
         driverController.xButton
         .whenHeld(new RunCommand(() -> {
-                drivetrain.arcadeDrive(driverController.getLeftStickYValue(), shooter.getShooterLimelight().getYawError()/-30 /*-DriveConstants.shootingTrackingGain*/);
+                drivetrain.arcadeDrive(driverController.getLeftStickYValue(), shooter.getShooterLimelight().getYawError()/-30);
             }, drivetrain))
             .whenActive(() -> {
                 shooter.getShooterLimelight().setLightState(3);
@@ -100,8 +110,6 @@ public class RobotContainer {
                 shooter.getShooterLimelight().setPipeline(2);
                 shooter.getShooterLimelight().setLightState(1);
             });
-        operatorController.Dpad.Up.whenActive(()->shooter.changeVariablePercent(0.05));
-        operatorController.Dpad.Down.whenActive(()->shooter.changeVariablePercent(-0.05));
 
         // INTAKE IN - Left Trigger
         driverController.rightTriggerButton
@@ -125,7 +133,7 @@ public class RobotContainer {
         // INTAKE + BELT BKWD - Left Bumper
         operatorController.leftBumper
             .whenActive(() -> {
-                magazine.setIntakeSpeed(-0.4);
+                magazine.setIntakeSpeed(-0.7);
                 magazine.setMagazineSpeed(0.7);
             }).whenInactive(()->{
                 magazine.setIntakeSpeed(0);
@@ -136,20 +144,21 @@ public class RobotContainer {
         operatorController.rightTriggerButton
             .whenActive(() -> {
                 shooter.enable();
-                shooter.setSetpoint(890);
+                shooter.setSetpoint(100);
             })
             .whenInactive(()->{
                 shooter.disable();
             });
-        // pro gaming - Right Trigger
+        // VARIABLE FLYWHEEL - Right Trigger
         operatorController.rightBumper
             .whenActive(() -> {
-                shooter.enable();
-                shooter.setSetpoint(560);
+                shooter.setShooterPercent(.3);
             })
             .whenInactive(()->{
-                shooter.disable();
+                shooter.setShooterPercent(0);
             });
+        operatorController.Dpad.Up.whenActive(()->shooter.changeVariablePercent(0.05));
+        operatorController.Dpad.Down.whenActive(()->shooter.changeVariablePercent(-0.05));    
     }
 
     /**
@@ -157,22 +166,26 @@ public class RobotContainer {
      * @return the selected auto command
      */
     public Command getAutonomousCommand() {
-        int path = GalacticSearchLIDAR.DeterminePath(magazine, false);
-        System.out.println("CHOSEN PATH: " + GSCConstants.pathNames[path]);
-
+        int path = 0;
+        double min = 100000000;
+        
+        for (int i = 0; i < GSCConstants.pathDists.length; i++) {
+            double distance = Math.abs(magazine.getMagazineLidarDist() - GSCConstants.pathDists[i]);
+            if (distance < min) {
+                min = distance;
+                path = i;
+            }
+        }
+        System.out.println(Math.round(magazine.getMagazineLidarDist()) + " path: " + GSCConstants.pathNames[path]);
         return new InstantCommand(()->{
-            magazine.setIntakeSpeed(0.4);
-            magazine.setMagazineSpeed(-0.7);
-            System.out.println(path);
-        }).andThen(RamseteHelper.fromPath(drivetrain, "./autonomous/full/"+GSCConstants.pathNames[path]+".wpilib.json"))
+            magazine.setIntakeSpeed(1);
+            magazine.setMagazineSpeed(-0.4);
+        }).andThen(pathCommands.get(path))
         .andThen(() -> {
-            //drivetrain.tankDriveVolts(0, 0);
             magazine.setIntakeSpeed(0);
             magazine.setMagazineSpeed(0);
             drivetrain.resetOdometry();
-            //drivetrain.setNeutralMode(NeutralMode.Coast);
         });
-
     }
 
 
