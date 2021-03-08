@@ -575,7 +575,7 @@ public class Robot extends TimedRobot {
             if (longshot)
                 belt.set(ControlMode.PercentOutput, -1.0); // Long shot gets full power. yee haw
             else
-                belt.set(ControlMode.PercentOutput, beltSpeed - 0.2);
+                belt.set(ControlMode.PercentOutput, beltSpeed - 0.2); //-0.9
         } else if (controllerdriver.getTriggerAxis(GenericHID.Hand.kRight) > 0.5) {
             belt.set(ControlMode.PercentOutput, beltSpeed);
         } else {

@@ -16,12 +16,12 @@ public class Magazine extends SubsystemBase {
     private Limelight intakeLimelight = new Limelight("limelight-bottom");
     private DigitalInput intakeSensor = new DigitalInput(6); // this one is not it man
     private DigitalInput shooterSensor = new DigitalInput(2);
-    private boolean empty;
+    private boolean longshot;
     private LIDAR magazineLIDAR = new LIDAR(new DigitalInput(MagazineConstants.lidarPort), true);
 
     /* State and Sensor Getters */
-    public boolean getEmpty() { return empty; }
-    public void setEmpty(boolean empty) { this.empty = empty; }
+    public boolean getLongshotMode() { return longshot; }
+    public void setLongshotMode(boolean on) { this.longshot = on; }
 
     public boolean getIntakeSensor() { return !intakeSensor.get(); }
     public boolean getShooterSensor() { return !shooterSensor.get(); }

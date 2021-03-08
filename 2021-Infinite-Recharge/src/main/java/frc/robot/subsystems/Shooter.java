@@ -14,13 +14,14 @@ import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 public class Shooter extends PIDSubsystem {
     private WPI_TalonSRX flywheel1 = new WPI_TalonSRX(ShooterConstants.flywheelMotor1Port);
     private WPI_TalonSRX flywheel2 = new WPI_TalonSRX(ShooterConstants.flywheelMotor2Port);
-    private Encoder flywheelEncoder = new Encoder(ShooterConstants.flywheelEncoderPorts[0], ShooterConstants.flywheelEncoderPorts[1], false, EncodingType.k2X);
+    private Encoder flywheelEncoder = new Encoder(ShooterConstants.flywheelEncoderPorts[0], ShooterConstants.flywheelEncoderPorts[1], true, EncodingType.k2X);
     private double currentTargetRPM = 1;
     
     private Limelight shooterLimelight = new Limelight("limelight-top");
 
     private boolean shooting;
     private double percentOutput=1;
+    
     public Shooter() {
         // This is a PID subsystems, so we tell WPIlib some basic settings.
         super(new PIDController(ShooterConstants.flywheelP, ShooterConstants.flywheelI, ShooterConstants.flywheelD));
@@ -40,12 +41,28 @@ public class Shooter extends PIDSubsystem {
         return flywheelEncoder.getRate();
     }
 
+    public boolean atSetpoint() {
+        return getMeasurement() < (currentTargetRPM + 15) && getMeasurement() > (currentTargetRPM - 15);
+    }
     @Override
     public void useOutput(double output, double setpoint) {
         // Use up that calculated output by powering the flywheel
         flywheel1.set(output);
         flywheel2.set(output);
         System.out.println(flywheelEncoder.getRate());
+    }
+    public double shootPower = 0;
+
+    public double getShooterProportional(double targetRate) {
+        currentTargetRPM = targetRate;
+        double rate = getFlywheelEncoder().getRate();
+        double speedChange = (targetRate - rate) * 0.0001;
+        shootPower += speedChange;
+        shootPower = Math.max(0.3, Math.min(1.0, shootPower));
+        if (targetRate == 0)
+            shootPower = 0;
+        System.out.println(shootPower);
+        return shootPower;
     }
 
     /* State and Sensor Getters */

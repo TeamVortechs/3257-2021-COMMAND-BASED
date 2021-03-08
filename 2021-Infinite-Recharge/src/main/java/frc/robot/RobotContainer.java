@@ -45,6 +45,7 @@ public class RobotContainer {
     Orchestra orchestra;
 
     ArrayList<Command> pathCommands = new ArrayList<>();
+
     public RobotContainer() {
         orchestra = new Orchestra(drivetrain.getTalonFXs());
         orchestra.loadMusic("gourmet_race.chrp");
@@ -52,19 +53,20 @@ public class RobotContainer {
         SmartDashboard.putData(autoChooser);
 
         // Set drive and magazine commands
-        drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -driverController.getRightStickXValue()), drivetrain)); 
-        //magazine.setDefaultCommand(new AutoMagazine(magazine, shooter));
+        drivetrain.setDefaultCommand(new RunCommand(() -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(),
+                -driverController.getRightStickXValue()), drivetrain));
+        // magazine.setDefaultCommand(new AutoMagazine(magazine, shooter));
         configureButtonBindings();
 
         for (String pathName : GSCConstants.pathNames) {
-            pathCommands.add(RamseteHelper.fromPath(drivetrain, "./autonomous/full/"+pathName+".wpilib.json"));
+            pathCommands.add(RamseteHelper.fromPath(drivetrain, "./autonomous/full/" + pathName + ".wpilib.json"));
         }
     }
 
-    public void log(){
-        //SmartDashboard.putNumber(key, value)
-        //GalacticSearchLIDAR.DeterminePath(magazine, true);
-        //System.out.println(magazine.getMagazineLidarDist());
+    public void log() {
+        // SmartDashboard.putNumber(key, value)
+        // GalacticSearchLIDAR.DeterminePath(magazine, true);
+        // System.out.println(magazine.getMagazineLidarDist());
     }
 
     // DRIVER
@@ -80,99 +82,136 @@ public class RobotContainer {
     // MAGAZINE OUT - Left Bumper
     // AUTO SHOOT - Press A
     public void configureButtonBindings() {
-        // DRIVER        
+        // DRIVER
         // BALL LOCK - Hold A
         driverController.aButton
-            .whenHeld(new RunCommand(() -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(), -magazine.getIntakeLimelight().getYawError() * DriveConstants.trackingGain), drivetrain))
-            .whenActive(() -> magazine.getIntakeLimelight().setLightState(3))
-            .whenInactive(() -> magazine.getIntakeLimelight().setLightState(1));
-        
+                .whenHeld(new RunCommand(
+                        () -> drivetrain.arcadeDrive(driverController.getLeftStickYValue(),
+                                -magazine.getIntakeLimelight().getYawError() * DriveConstants.trackingGain),
+                        drivetrain))
+                .whenActive(() -> magazine.getIntakeLimelight().setLightState(3))
+                .whenInactive(() -> magazine.getIntakeLimelight().setLightState(1));
+
         // TARGET LOCK - Hold X
-        driverController.xButton
-        .whenHeld(new RunCommand(() -> {
-                drivetrain.arcadeDrive(driverController.getLeftStickYValue(), shooter.getShooterLimelight().getYawError()/-30 /*-DriveConstants.shootingTrackingGain*/);
-            }, drivetrain))
-            .whenActive(() -> {
-                shooter.getShooterLimelight().setLightState(3);
-                shooter.getShooterLimelight().setPipeline(0);
-            })
-            .whenInactive(() -> {
-                shooter.getShooterLimelight().setPipeline(2);
-                shooter.getShooterLimelight().setLightState(1);
-            });
-        operatorController.Dpad.Up.whenActive(()->shooter.changeVariablePercent(0.05));
-        operatorController.Dpad.Down.whenActive(()->shooter.changeVariablePercent(-0.05));
+        driverController.xButton.whenHeld(new RunCommand(() -> {
+            drivetrain.arcadeDrive(driverController.getLeftStickYValue(),
+                    shooter.getShooterLimelight().getYawError() / -30 /*-DriveConstants.shootingTrackingGain*/);
+        }, drivetrain)).whenActive(() -> {
+            shooter.getShooterLimelight().setLightState(3);
+            shooter.getShooterLimelight().setPipeline(0);
+        }).whenInactive(() -> {
+            shooter.getShooterLimelight().setPipeline(2);
+            shooter.getShooterLimelight().setLightState(1);
+        });
+        operatorController.Dpad.Up.whenActive(() -> shooter.changeVariablePercent(0.05));
+        operatorController.Dpad.Down.whenActive(() -> shooter.changeVariablePercent(-0.05));
 
         // INTAKE IN - Left Trigger
-        driverController.rightTriggerButton
-            .whenActive(() -> {
-                drivetrain.setSlowMode(true);
-            })
-            .whenInactive(() -> {
-                drivetrain.setSlowMode(false);
-            });
-        
+        driverController.rightTriggerButton.whenActive(() -> {
+            drivetrain.setSlowMode(true);
+        }).whenInactive(() -> {
+            drivetrain.setSlowMode(false);
+        });
+
         // INTAKE + BELT FWD - Left Trigger
-        operatorController.leftTriggerButton
-            .whenActive(() -> {
+        operatorController.leftTriggerButton.whenActive(() -> {
+            if (!magazine.getLongshotMode()) {
                 magazine.setIntakeSpeed(0.7);
                 magazine.setMagazineSpeed(-0.7);
-            }).whenInactive(()->{
-                magazine.setIntakeSpeed(0);
-                magazine.setMagazineSpeed(0);
-            });
+            } else {
+                magazine.setMagazineSpeed(-.9);
+            }
+        }).whenInactive(() -> {
+            magazine.setIntakeSpeed(0);
+            magazine.setMagazineSpeed(0);
+        });
 
         // INTAKE + BELT BKWD - Left Bumper
-        operatorController.leftBumper
-            .whenActive(() -> {
-                magazine.setIntakeSpeed(-0.4);
-                magazine.setMagazineSpeed(0.7);
-            }).whenInactive(()->{
-                magazine.setIntakeSpeed(0);
-                magazine.setMagazineSpeed(0);
-            });
+        operatorController.leftBumper.whenActive(() -> {
+            magazine.setIntakeSpeed(-0.4);
+            magazine.setMagazineSpeed(0.7);
+        }).whenInactive(() -> {
+            magazine.setIntakeSpeed(0);
+            magazine.setMagazineSpeed(0);
+        });
 
         // FLYWHEEL - Right Trigger
         operatorController.rightTriggerButton
-            .whenActive(() -> {
-                shooter.enable();
-                shooter.setSetpoint(890);
-            })
-            .whenInactive(()->{
-                shooter.disable();
-            });
+        .whenHeld(new RunCommand(() ->
+            {
+                if (shooter.atSetpoint())
+                    magazine.setMagazineSpeed(-1);
+                shooter.setShooterPercent(shooter.getShooterProportional(530));
+            }
+        ), false)
+        .whenActive(() -> {
+            magazine.setLongshotMode(false);
+        }).whenInactive(() -> {
+            shooter.setShooterPercent(0);
+            magazine.setMagazineSpeed(0);
+            magazine.setLongshotMode(false);
+        });
+
         // pro gaming - Right Trigger
         operatorController.rightBumper
-            .whenActive(() -> {
-                shooter.enable();
-                shooter.setSetpoint(560);
-            })
-            .whenInactive(()->{
-                shooter.disable();
-            });
-    }
+        .whenHeld(new RunCommand(() ->
+            {
+                if (shooter.atSetpoint())
+                    magazine.setMagazineSpeed(-0.9);
+                shooter.setShooterPercent(shooter.getShooterProportional(810));
+            }
+        ), false)
+        .whenActive(() -> {
+            magazine.setLongshotMode(true);
+        }).whenInactive(() -> {
+            magazine.setMagazineSpeed(0);
+            shooter.setShooterPercent(0);
+            magazine.setLongshotMode(false);
+        });
 
+        operatorController.aButton.whenActive(() -> {
+            shooter.setShooterPercent(shooter.getShooterVariableSpeed());
+        }).whenInactive(() -> {
+            shooter.setShooterPercent(0);
+        });
+        
+    }
+    
     /**
      * Gets the selected auto command
+     * 
      * @return the selected auto command
      */
     public Command getAutonomousCommand() {
-        int path = GalacticSearchLIDAR.DeterminePath(magazine, false);
+        int path = DeterminePath();
         System.out.println("CHOSEN PATH: " + GSCConstants.pathNames[path]);
 
-        return new InstantCommand(()->{
+        return new InstantCommand(() -> {
             magazine.setIntakeSpeed(0.4);
             magazine.setMagazineSpeed(-0.7);
             System.out.println(path);
-        }).andThen(RamseteHelper.fromPath(drivetrain, "./autonomous/full/"+GSCConstants.pathNames[path]+".wpilib.json"))
+        }).andThen(RamseteHelper.fromPath(drivetrain,
+        "./autonomous/full/" + GSCConstants.pathNames[path] + ".wpilib.json"))
         .andThen(() -> {
-            //drivetrain.tankDriveVolts(0, 0);
             magazine.setIntakeSpeed(0);
             magazine.setMagazineSpeed(0);
             drivetrain.resetOdometry();
-            //drivetrain.setNeutralMode(NeutralMode.Coast);
         });
+    }
 
+    public int DeterminePath() {
+        double distance = magazine.getMagazineLidarDist();
+
+        double minDiff = 10000;
+        int selectedIndex = 0;
+        for(int i = 0; i < GSCConstants.pathDists.length; i++){
+            double localDiff = Math.abs(GSCConstants.pathDists[i] - distance);
+            if(localDiff < minDiff){
+                selectedIndex = i;
+                minDiff = localDiff;
+            }
+        }
+        return selectedIndex;
     }
 
 
