@@ -69,10 +69,12 @@ public class Drivetrain extends SubsystemBase {
         frontRight.setInverted(InvertType.None);
         frontRight.setNeutralMode(NeutralMode.Coast);
         frontRight.configOpenloopRamp(1/2);
+        frontRight.setSensorPhase(true);
 
         backRight.setInverted(InvertType.None);
         backRight.setNeutralMode(NeutralMode.Coast);
         backRight.configOpenloopRamp(1/2);
+        backRight.setSensorPhase(true);
         //backRight.follow(frontRight);
         //backRight.setInverted(InvertType.FollowMaster);
         //backRight.setNeutralMode(NeutralMode.Coast);
