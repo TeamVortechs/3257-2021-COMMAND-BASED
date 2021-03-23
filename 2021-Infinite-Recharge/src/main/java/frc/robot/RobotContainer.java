@@ -1,6 +1,8 @@
 package frc.robot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -67,8 +69,12 @@ public class RobotContainer {
         // SmartDashboard.putNumber(key, value)
         // GalacticSearchLIDAR.DeterminePath(magazine, true);
         // System.out.println(magazine.getMagazineLidarDist());
-    }
+        SmartDashboard.putNumber("gaming", shooter.getMeasurement());
+        SmartDashboard.putNumber("gaming avg", avg);
 
+    }
+    //double rps = 95; //95=backmost
+    double rps = 90; //95=backmost 
     // DRIVER
     // BALL LOCK - Hold A
     // TARGET LOCK - Hold X
@@ -103,8 +109,8 @@ public class RobotContainer {
             shooter.getShooterLimelight().setPipeline(2);
             shooter.getShooterLimelight().setLightState(1);
         });
-        operatorController.Dpad.Up.whenActive(() -> shooter.changeVariablePercent(0.05));
-        operatorController.Dpad.Down.whenActive(() -> shooter.changeVariablePercent(-0.05));
+        operatorController.Dpad.Up.whenActive(() -> rps += 1);
+        operatorController.Dpad.Down.whenActive(() -> rps-=1);
 
         // INTAKE IN - Left Trigger
         driverController.rightTriggerButton.whenActive(() -> {
@@ -169,10 +175,12 @@ public class RobotContainer {
             magazine.setLongshotMode(false);
         });
 
-        operatorController.aButton.whenActive(() -> {
-            shooter.setShooterPercent(shooter.getShooterVariableSpeed());
-        }).whenInactive(() -> {
+        operatorController.aButton.whenHeld(new RunCommand(()->{
+            System.out.println(shooter.getMeasurement() + ", " + shootPower + ", "+ rps);
+            shoot(rps);
+        }, shooter)).whenInactive(() -> {
             shooter.setShooterPercent(0);
+            magazine.setMagazineSpeed(0);
         });
         
     }
@@ -213,8 +221,35 @@ public class RobotContainer {
         }
         return selectedIndex;
     }
+    List<Double> speedBuffer = Arrays.asList(Collections.nCopies(100, 0.0).toArray(new Double[0]));
+    double shootPower = 0;
+    double avg = 0;
 
+    int index = 0;
+    public void shoot(double targetRate) {
+        double rate = shooter.getMeasurement();
+        speedBuffer.set(index%100, rate);
+        index += 1;
+        for (Double s : speedBuffer) {
+            avg += s;
+        }
+        avg/=speedBuffer.size();
 
+        double speedChange = (targetRate - rate) * 0.00015;
+        if (rate > targetRate){ speedChange*=7; }
+        shootPower += speedChange;
+        shootPower = Math.max(0.3, Math.min(1.0, shootPower));
+        if (targetRate == 0)
+            shootPower = 0;
+        if (avg < (targetRate + .5) && avg > (targetRate - .5)) {
+            magazine.setMagazineSpeed(-1);
+        }else {
+            magazine.setMagazineSpeed(0);
+        }
+        
+        shooter.setShooterPercent(shootPower);
+        //shooter.setShooterPercent(0.62); //89, .62 is pretty good
+    }
     ArrayList<Double> entries = new ArrayList<Double>();
     NetworkTableEntry autoSpeedEntry = NetworkTableInstance.getDefault().getEntry("/robot/autospeed");
     NetworkTableEntry telemetryEntry = NetworkTableInstance.getDefault().getEntry("/robot/telemetry");
