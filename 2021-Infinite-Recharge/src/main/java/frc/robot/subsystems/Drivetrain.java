@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -31,7 +32,7 @@ public class Drivetrain extends SubsystemBase {
     private PIDController leftController = new PIDController(DriveConstants.driveP, DriveConstants.driveI, DriveConstants.driveD);
     private PIDController rightController = new PIDController(DriveConstants.driveP, DriveConstants.driveI, DriveConstants.driveD);
 
-    private DifferentialDrive differentialDrive = new DifferentialDrive(frontLeft, frontRight);
+    private DifferentialDrive differentialDrive = new DifferentialDrive(new SpeedControllerGroup(frontLeft, backLeft), new SpeedControllerGroup(frontRight, backRight));
     private DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DriveConstants.trackwidth);
     private DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(new Rotation2d(), new Pose2d());
     private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(DriveConstants.s, DriveConstants.v, DriveConstants.a);
@@ -56,16 +57,25 @@ public class Drivetrain extends SubsystemBase {
         frontLeft.setNeutralMode(NeutralMode.Coast);
         frontLeft.configOpenloopRamp(1/2);
         frontLeft.setSensorPhase(true);
-        backLeft.follow(frontLeft);
+
+        backLeft.setInverted(InvertType.None);
         backLeft.setNeutralMode(NeutralMode.Coast);
-        backLeft.setInverted(InvertType.FollowMaster);
+        backLeft.configOpenloopRamp(1/2);
+        backLeft.setSensorPhase(true);
+        //backLeft.follow(frontLeft);
+        //backLeft.setNeutralMode(NeutralMode.Coast);
+        //backLeft.setInverted(InvertType.FollowMaster);
         
         frontRight.setInverted(InvertType.None);
         frontRight.setNeutralMode(NeutralMode.Coast);
         frontRight.configOpenloopRamp(1/2);
-        backRight.follow(frontRight);
-        backRight.setInverted(InvertType.FollowMaster);
+
+        backRight.setInverted(InvertType.None);
         backRight.setNeutralMode(NeutralMode.Coast);
+        backRight.configOpenloopRamp(1/2);
+        //backRight.follow(frontRight);
+        //backRight.setInverted(InvertType.FollowMaster);
+        //backRight.setNeutralMode(NeutralMode.Coast);
     }
     
     @Override
